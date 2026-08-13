@@ -60,9 +60,24 @@
 - **Тесты:** `test_api` — happy-path режимов 8/64/coins (+виртуальный бросок),
   сохранение записи, 422 на неверных полях/коротком вопросе. Итого 33 passed.
 
+## Этап 6 — Rate limiting + кризис-фильтр · 2026-08-13
+
+- `services/ratelimit.py`: in-memory лимитер по IP (скользящее окно),
+  зависимость `rate_limit`; лимиты reading 10/час·30/сутки, question 30/час,
+  analyze 5/сутки.
+- `/api/reading` под лимитом; middleware ограничения тела (>8 КБ → 413).
+- `routers/question.py`: `POST /api/question/check` (MODEL_LIGHT) →
+  quality/hint/crisis; блок безопасности `SAFETY` уже во всех промптах.
+- Тесты вынесены в общий `conftest.py` (in-memory БД + FakeLLM по схеме).
+- **Тесты:** `test_question`, `test_ratelimit` (429 после лимита, 413 на
+  большом теле) + рефактор `test_api`. Итого 37 passed.
+
+*(точные хеши коммитов — в `git log`.)*
+
 ---
 
 ## Что дальше
 
-Этап 6 — rate limiting (slowapi по IP) + дисклеймер/кризис-фильтр
-(`/api/question/check` с полем crisis). До публичного доступа.
+Этап 7 — Frontend «Гадание»: API-клиент, словарь строк `copy.ts`, режимы
+8/64/coins, ввод вопроса, сетки/пикеры, результат с классикой, обработка
+502/503, статичный дисклеймер.

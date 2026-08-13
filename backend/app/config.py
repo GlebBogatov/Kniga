@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     # Прочее
     db_url: str = "sqlite:///./iching.db"
     cors_origins: str = "http://localhost:5173"
+    rate_limit_enabled: bool = True
+    max_body_bytes: int = 8192
 
     @property
     def cors_origin_list(self) -> list[str]:

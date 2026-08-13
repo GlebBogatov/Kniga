@@ -6,6 +6,7 @@ from ..db import get_db
 from ..schemas import ReadingRequest
 from ..services import readings
 from ..services.llm import LLMCallError, LLMService, LLMUnavailable, get_llm_service
+from ..services.ratelimit import READING_LIMITS, rate_limit
 
 router = APIRouter(tags=["divination"])
 
@@ -15,6 +16,7 @@ def create_reading(
     req: ReadingRequest,
     db: Session = Depends(get_db),
     llm: LLMService = Depends(get_llm_service),
+    _rl: None = Depends(rate_limit("reading", READING_LIMITS)),
 ) -> dict:
     try:
         return readings.create_reading(db, req, llm)
