@@ -34,10 +34,25 @@
 - **Тесты:** `test_coins` — 6×7→№1 без изменений; 6×6→№2 + вторичная №1;
   распределение броска; валидация ввода. Итого 16 passed.
 
+## Этап 4 — LLM-сервис, промпты, схемы · 2026-08-13 · коммит `a6c09c2`
+
+- `services/llm.py`: провайдер-абстракция (`AnthropicProvider`,
+  `OpenRouterProvider`), base_url/proxy, ретраи на сетевые ошибки, circuit
+  breaker (порог/таймаут, инъекция часов), structured output через
+  `output_config.format`, потоковый `stream_text`.
+- `services/prompts.py`: промпты триграммы/гексаграммы/монет, чат, проверка
+  вопроса (+crisis), анализ дневника; блок безопасности `SAFETY` в каждом.
+- `schemas.py`: `ReadingRequest`/`ChatRequest`/`QuestionCheckRequest` +
+  JSON-схемы структурированного вывода.
+- `/api/health/llm` (кэш 5 мин).
+- **Тесты:** `test_llm` (breaker, ретраи→503/502, переключение провайдера,
+  proxy/base_url), `test_prompts` (вопрос/безопасность/стиль/монеты).
+  Итого 26 passed.
+
 ---
 
 ## Что дальше
 
-Этап 4 — LLM-сервис (`llm.py`: провайдеры Anthropic/OpenRouter, base_url/proxy,
-ретраи, circuit breaker, health), промпты (`prompts.py`), схемы структурированного
-вывода (`schemas.py`) + тесты.
+Этап 5 — `POST /api/reading` + БД: модели `Reading`/`ChatMessage` (`models.py`),
+бизнес-логика (`readings.py`), роутер, сохранение записи, тест happy-path трёх
+режимов с замоканным LLM.
