@@ -49,10 +49,20 @@
   proxy/base_url), `test_prompts` (вопрос/безопасность/стиль/монеты).
   Итого 26 passed.
 
+## Этап 5 — POST /api/reading + БД · 2026-08-13 · коммит `f69be5e`
+
+- `models.py`: `Reading` и `ChatMessage` (SQLAlchemy 2.0, cascade delete,
+  задел под user_id).
+- `services/readings.py`: сборка символа → промпт → structured LLM → сохранение
+  записи; symbol_key/label/element.
+- `routers/divination.py`: `POST /api/reading` (422 при неверных полях,
+  502/503 при сбое LLM), подключён в `main.py`.
+- **Тесты:** `test_api` — happy-path режимов 8/64/coins (+виртуальный бросок),
+  сохранение записи, 422 на неверных полях/коротком вопросе. Итого 33 passed.
+
 ---
 
 ## Что дальше
 
-Этап 5 — `POST /api/reading` + БД: модели `Reading`/`ChatMessage` (`models.py`),
-бизнес-логика (`readings.py`), роутер, сохранение записи, тест happy-path трёх
-режимов с замоканным LLM.
+Этап 6 — rate limiting (slowapi по IP) + дисклеймер/кризис-фильтр
+(`/api/question/check` с полем crisis). До публичного доступа.
