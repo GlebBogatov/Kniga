@@ -5,6 +5,7 @@ import { CoinsInput } from "./components/CoinsInput";
 import { FollowUpChat } from "./components/FollowUpChat";
 import { HexagramPicker } from "./components/HexagramPicker";
 import { Journal } from "./components/Journal";
+import { Presets } from "./components/Presets";
 import { QuestionInput } from "./components/QuestionInput";
 import { ReadingResult } from "./components/ReadingResult";
 import { TrigramGrid } from "./components/TrigramGrid";
@@ -19,6 +20,7 @@ export default function App() {
   const [tab, setTab] = useState<"reading" | "journal">("reading");
   const [mode, setMode] = useState<Mode>("8");
   const [question, setQuestion] = useState("");
+  const [presetSlug, setPresetSlug] = useState<string | null>(null);
 
   const [trigramId, setTrigramId] = useState<string | null>(null);
   const [lowerId, setLowerId] = useState<string | null>(null);
@@ -82,6 +84,7 @@ export default function App() {
       lower_id: mode === "64" ? lowerId ?? undefined : undefined,
       upper_id: mode === "64" ? upperId ?? undefined : undefined,
       tosses: mode === "coins" ? (virtual ? null : (tosses as number[])) : undefined,
+      preset_slug: presetSlug ?? undefined,
     };
 
     let streamed = false;
@@ -158,9 +161,20 @@ export default function App() {
             ))}
           </div>
 
+          <Presets
+            onPick={(p) => {
+              setQuestion(p.question_template);
+              setPresetSlug(p.slug);
+              setCheck(null);
+            }}
+          />
+
           <QuestionInput
             value={question}
-            onChange={setQuestion}
+            onChange={(v) => {
+              setQuestion(v);
+              setPresetSlug(null);
+            }}
             onCheck={runCheck}
             checking={checking}
             check={check}

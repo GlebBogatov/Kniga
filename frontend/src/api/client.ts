@@ -3,6 +3,7 @@ import type {
   ChatReply,
   JournalAnalysis,
   JournalEntry,
+  Preset,
   QuestionCheck,
   ReadingResponse,
   Style,
@@ -48,6 +49,7 @@ export interface ReadingRequestBody {
   upper_id?: string;
   tosses?: number[] | null;
   style?: Style | null;
+  preset_slug?: string;
 }
 
 export interface StreamHandlers {
@@ -127,4 +129,5 @@ export const api = {
   analyzeJournal: () => request<JournalAnalysis>("POST", "/journal/analyze", {}),
   chat: (readingId: number, message: string) =>
     request<ChatReply>("POST", `/reading/${readingId}/chat`, { message }),
+  getPresets: () => request<Preset[]>("GET", "/presets"),
 };

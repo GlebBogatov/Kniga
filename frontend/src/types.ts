@@ -87,6 +87,15 @@ export interface ChatReply {
   remaining: number;
 }
 
+export interface Preset {
+  slug: string;
+  topic: string;
+  title: string;
+  subtitle: string;
+  question_template: string;
+  prompt_focus: string;
+}
+
 export interface ApiError {
   status: number;
   detail: string;

@@ -31,6 +31,29 @@
   font-weight: 600;
 }
 
+/* Пресеты вопросов */
+.presets {
+  margin-bottom: 0.8rem;
+}
+.presets-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+.preset-chip {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--paper-dim);
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+}
+.preset-chip:hover {
+  border-color: var(--cinnabar);
+}
+
 /* Ввод вопроса */
 .question-input {
   margin-bottom: 1rem;
