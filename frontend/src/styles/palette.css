@@ -1,0 +1,41 @@
+/* Палитра прототипа. Единый источник цветов для всех компонентов. */
+:root {
+  --ink: #1b2027;
+  --paper: #ede5d3;
+  --paper-dim: #e2d8c2;
+  --cinnabar: #c1442e;
+  --ink-text: #241f19;
+  --faded: #6e6455;
+  --night-card: #232935;
+  --night-border: #3a4150;
+
+  --serif: Georgia, "Times New Roman", serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink-text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--serif);
+  color: var(--ink);
+}
+
+.app {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+
+.muted {
+  color: var(--faded);
+}

@@ -1,0 +1,10 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+pydantic-settings>=2.3
+sqlalchemy>=2.0
+anthropic>=0.40
+httpx[socks]>=0.27
+tenacity>=8.3
+slowapi>=0.1.9
+pytest>=8.2
