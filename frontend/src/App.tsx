@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { api } from "./api/client";
+import { DEMO, api } from "./api/client";
 import { CoinsInput } from "./components/CoinsInput";
 import { FollowUpChat } from "./components/FollowUpChat";
 import { HexagramPicker } from "./components/HexagramPicker";
@@ -126,6 +126,7 @@ export default function App() {
 
   return (
     <main className="app">
+      {DEMO && <div className="demo-banner">{copy.demoBanner}</div>}
       <header className="app-header">
         <h1>{copy.appTitle}</h1>
         <p className="muted">{copy.appSubtitle}</p>

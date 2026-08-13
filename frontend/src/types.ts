@@ -100,3 +100,20 @@ export interface ApiError {
   status: number;
   detail: string;
 }
+
+export interface ReadingRequestBody {
+  mode: Mode;
+  question: string;
+  trigram_id?: string;
+  lower_id?: string;
+  upper_id?: string;
+  tosses?: number[] | null;
+  style?: Style | null;
+  preset_slug?: string;
+}
+
+export interface StreamHandlers {
+  onDelta: (text: string) => void;
+  onDone: (res: ReadingResponse) => void;
+  onError: (err: ApiError) => void;
+}

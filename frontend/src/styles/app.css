@@ -1,5 +1,14 @@
 /* Компонентные стили экрана «Гадание». Цвета — из palette.css. */
 
+.demo-banner {
+  background: var(--paper-dim);
+  border: 1px solid var(--cinnabar);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
 .app-header h1 {
   margin: 0;
 }

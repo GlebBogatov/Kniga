@@ -5,9 +5,11 @@ import type {
   JournalEntry,
   Preset,
   QuestionCheck,
+  ReadingRequestBody,
   ReadingResponse,
-  Style,
+  StreamHandlers,
 } from "../types";
+import { demoApi } from "./demo";
 
 const BASE = "/api";
 const TIMEOUT_MS = 60_000;
@@ -39,23 +41,6 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   } finally {
     clearTimeout(timer);
   }
-}
-
-export interface ReadingRequestBody {
-  mode: "8" | "64" | "coins";
-  question: string;
-  trigram_id?: string;
-  lower_id?: string;
-  upper_id?: string;
-  tosses?: number[] | null;
-  style?: Style | null;
-  preset_slug?: string;
-}
-
-export interface StreamHandlers {
-  onDelta: (text: string) => void;
-  onDone: (res: ReadingResponse) => void;
-  onError: (err: ApiError) => void;
 }
 
 function parseSseEvent(raw: string): { event: string; data: unknown } | null {
@@ -118,7 +103,7 @@ async function streamReading(body: ReadingRequestBody, h: StreamHandlers): Promi
   }
 }
 
-export const api = {
+const realApi = {
   createReading: (body: ReadingRequestBody) =>
     request<ReadingResponse>("POST", "/reading", body),
   streamReading,
@@ -131,3 +116,6 @@ export const api = {
     request<ChatReply>("POST", `/reading/${readingId}/chat`, { message }),
   getPresets: () => request<Preset[]>("GET", "/presets"),
 };
+
+export const DEMO = import.meta.env.VITE_DEMO === "1";
+export const api = DEMO ? demoApi : realApi;
