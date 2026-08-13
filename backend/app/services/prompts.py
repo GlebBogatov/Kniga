@@ -98,6 +98,52 @@ def build_interpretation_prompt(symbol: dict, question: str, *, style=None, pres
     return prompt_hexagram(symbol, question, style=style, preset_focus=preset_focus)
 
 
+def _symbol_line(symbol: dict) -> str:
+    if symbol["kind"] == "trigram":
+        return (
+            f"Выпавшая триграмма: {symbol['name']} ({symbol['hanzi']}), образ — "
+            f"{symbol['image']}, действие — {symbol['action']}, стихия — {symbol['element']}."
+        )
+    lo, up = symbol["lower"], symbol["upper"]
+    line = (
+        f"Выпавшая гексаграмма №{symbol['number']} — {symbol['name']}, «{symbol['title']}». "
+        f"Нижняя: {lo['name']} ({lo['image']}), верхняя: {up['name']} ({up['image']})."
+    )
+    if "changing_lines" in symbol:
+        line += f" Изменяющиеся линии: {symbol.get('changing_lines') or 'нет'}."
+    return line
+
+
+def prompt_interpretation_stream(symbol: dict, question: str, *, style=None, preset_focus=None) -> str:
+    """Только прозаический текст толкования (для потоковой передачи)."""
+    return (
+        "Ты — знаток «Книги перемен» (И Цзин), толкующий гадание.\n"
+        f"{_symbol_line(symbol)}\n"
+        f"Вопрос гадающего: «{question}»\n"
+        f"{_base_rules(style, preset_focus)}\n"
+        "Дай ТОЛЬКО связный текст толкования (4–6 предложений) применительно к "
+        "вопросу. Без списков, без заголовков, без JSON."
+    )
+
+
+def prompt_trailer(symbol: dict, question: str, interpretation: str, *, style=None) -> str:
+    """Добор полей advice/caution/next_step (+lines_commentary) после стрима."""
+    coins = "changing_lines" in symbol
+    extra = (
+        " и lines_commentary (массив объектов {line, text} по каждой изменяющейся "
+        "линии; если их нет — пустой массив)"
+        if coins
+        else ""
+    )
+    return (
+        "Ты — знаток «Книги перемен». Вот твоё толкование гадания на вопрос "
+        f"«{question}»:\n{interpretation}\n\n"
+        "На его основе дай объект с полями advice (1–2 предложения — конкретный "
+        "совет), caution (1 предложение — предостережение), next_step (1 предложение "
+        f"— первый практический шаг){extra}. Пиши по-русски, на «вы»."
+    )
+
+
 def chat_system_prompt(symbol_label: str, question: str, interpretation: str, advice: str) -> str:
     return (
         "Ты — знаток «Книги перемен», продолжающий разбор уже сделанного гадания.\n"

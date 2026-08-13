@@ -30,12 +30,14 @@ export function ReadingResult({
   loading,
   error,
   onRetry,
+  streamingText = "",
 }: {
   symbol: DivinationSymbol;
   result: ReadingResponse | null;
   loading: boolean;
   error: ApiError | null;
   onRetry: () => void;
+  streamingText?: string;
 }) {
   return (
     <section className="reading-result">
@@ -60,7 +62,21 @@ export function ReadingResult({
         <div className="rr-seal">{seal(symbol)}</div>
       </div>
 
-      {loading && <div className="rr-loading">{copy.submitLoading}</div>}
+      {loading && !streamingText && !result && (
+        <div className="rr-loading">{copy.submitLoading}</div>
+      )}
+
+      {!result && streamingText && (
+        <div className="rr-blocks">
+          <div className="rr-block">
+            <h3>{copy.result.interpretation}</h3>
+            <p>
+              {streamingText}
+              <span className="rr-cursor">▌</span>
+            </p>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="plash error">

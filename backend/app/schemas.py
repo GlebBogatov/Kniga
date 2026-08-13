@@ -84,6 +84,42 @@ COINS_INTERPRETATION_SCHEMA = {
     "additionalProperties": False,
 }
 
+# Трейлер для стриминга: interpretation стримится текстом отдельно,
+# остальные поля добираются компактным вторым вызовом.
+TRAILER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "advice": {"type": "string"},
+        "caution": {"type": "string"},
+        "next_step": {"type": "string"},
+    },
+    "required": ["advice", "caution", "next_step"],
+    "additionalProperties": False,
+}
+
+COINS_TRAILER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "advice": {"type": "string"},
+        "caution": {"type": "string"},
+        "next_step": {"type": "string"},
+        "lines_commentary": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "line": {"type": "integer"},
+                    "text": {"type": "string"},
+                },
+                "required": ["line", "text"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["advice", "caution", "next_step", "lines_commentary"],
+    "additionalProperties": False,
+}
+
 QUESTION_CHECK_SCHEMA = {
     "type": "object",
     "properties": {

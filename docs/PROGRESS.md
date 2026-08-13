@@ -117,9 +117,23 @@
 
 *(точные хеши коммитов — в `git log`.)*
 
+## Этап 10 — Стриминг толкования · 2026-08-13
+
+- Backend: `POST /api/reading/stream` (SSE) — стрим прозы толкования
+  (`stream_text`), затем компактный structured-добор advice/caution/next_step
+  (+lines_commentary); события `delta`/`done`/`error`, сохранение записи.
+  Схемы `TRAILER_SCHEMA`/`COINS_TRAILER_SCHEMA`, промпты stream/trailer.
+- Frontend: `api.streamReading` (парсер SSE через ReadableStream), App стримит
+  толкование по умолчанию с fallback на `POST /api/reading`; `ReadingResult`
+  показывает текст по мере генерации (курсор).
+- **Тесты:** backend `test_stream` (события + сохранение, 422) — 48 passed;
+  frontend typecheck + 13 vitest + build — ок.
+
+*(точные хеши коммитов — в `git log`.)*
+
 ---
 
 ## Что дальше
 
-Этап 10 — стриминг толкования (SSE). Далее: пресеты и справочник (11–12),
-README и финальный прогон (13).
+Этапы 11–13 — пресеты вопросов, справочник символов (эндпоинты), README и
+финальный прогон всех тестов.

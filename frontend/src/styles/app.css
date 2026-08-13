@@ -241,6 +241,15 @@
   color: var(--faded);
   font-style: italic;
 }
+.rr-cursor {
+  color: var(--cinnabar);
+  animation: blink 1s step-start infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
 .rr-block {
   margin-top: 1rem;
 }

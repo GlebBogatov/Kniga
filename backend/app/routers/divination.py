@@ -1,5 +1,6 @@
 """Роутер гадания: POST /api/reading."""
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from ..db import get_db
@@ -31,6 +32,18 @@ def create_reading(
         raise HTTPException(
             status_code=502, detail="Не удалось получить толкование. Попробуйте ещё раз."
         )
+
+
+@router.post("/reading/stream")
+def reading_stream(
+    req: ReadingRequest,
+    db: Session = Depends(get_db),
+    llm: LLMService = Depends(get_llm_service),
+    _rl: None = Depends(rate_limit("reading", READING_LIMITS)),
+) -> StreamingResponse:
+    return StreamingResponse(
+        readings.stream_reading(db, req, llm), media_type="text/event-stream"
+    )
 
 
 @router.post("/reading/{reading_id}/chat")

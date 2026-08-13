@@ -8,7 +8,7 @@ from ..config import settings
 from ..models import ChatMessage, Reading
 from . import prompts
 from .divination import coins_symbol, hexagram_symbol, trigram_symbol
-from .llm import LLMService, get_llm_service
+from .llm import LLMCallError, LLMService, LLMUnavailable, get_llm_service
 
 
 def build_symbol(req: schemas.ReadingRequest) -> dict:
@@ -120,6 +120,60 @@ def delete_reading(db: Session, reading_id: int) -> bool:
     db.delete(row)
     db.commit()
     return True
+
+
+def _sse(event: str, data: dict) -> str:
+    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+
+def stream_reading(db: Session, req: schemas.ReadingRequest, llm: LLMService | None = None):
+    """Генератор SSE: стримит текст толкования, затем добирает поля и сохраняет запись."""
+    llm = llm or get_llm_service()
+    try:
+        symbol = build_symbol(req)
+    except ValueError as exc:
+        yield _sse("error", {"detail": str(exc)})
+        return
+
+    is_coins = "changing_lines" in symbol
+    parts: list[str] = []
+    try:
+        stream_prompt = prompts.prompt_interpretation_stream(
+            symbol, req.question, style=req.style
+        )
+        for chunk in llm.stream_text(
+            stream_prompt, model=settings.model_interpretation, max_tokens=700
+        ):
+            parts.append(chunk)
+            yield _sse("delta", {"text": chunk})
+
+        interpretation = "".join(parts).strip()
+        schema = schemas.COINS_TRAILER_SCHEMA if is_coins else schemas.TRAILER_SCHEMA
+        trailer = llm.call_structured(
+            prompts.prompt_trailer(symbol, req.question, interpretation, style=req.style),
+            schema, model=settings.model_interpretation, max_tokens=400,
+        )
+    except (LLMUnavailable, LLMCallError):
+        yield _sse("error", {"detail": "Толкование временно недоступно."})
+        return
+
+    reading = Reading(
+        mode=req.mode, symbol_key=symbol_key(symbol), symbol_label=symbol_label(symbol),
+        element=symbol_element(symbol), question=req.question, interpretation=interpretation,
+        advice=trailer["advice"], caution=trailer["caution"], next_step=trailer["next_step"],
+        prompt_snapshot=stream_prompt,
+    )
+    db.add(reading)
+    db.commit()
+    db.refresh(reading)
+
+    done = {
+        "reading_id": reading.id, "symbol": symbol, "interpretation": interpretation,
+        "advice": trailer["advice"], "caution": trailer["caution"], "next_step": trailer["next_step"],
+    }
+    if is_coins:
+        done["lines_commentary"] = trailer.get("lines_commentary", [])
+    yield _sse("done", done)
 
 
 CHAT_LIMIT = 5

@@ -30,6 +30,7 @@ export default function App() {
 
   const [preview, setPreview] = useState<DivinationSymbol | null>(null);
   const [result, setResult] = useState<ReadingResponse | null>(null);
+  const [streamText, setStreamText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
@@ -64,6 +65,7 @@ export default function App() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setStreamText("");
 
     // Мгновенное превью символа (классика видна даже при сбое API).
     let localPreview: DivinationSymbol | null = null;
@@ -73,24 +75,48 @@ export default function App() {
       localPreview = coinsPreview(tosses as number[]);
     setPreview(localPreview);
 
-    try {
-      const body = {
-        mode,
-        question,
-        trigram_id: mode === "8" ? trigramId ?? undefined : undefined,
-        lower_id: mode === "64" ? lowerId ?? undefined : undefined,
-        upper_id: mode === "64" ? upperId ?? undefined : undefined,
-        tosses:
-          mode === "coins" ? (virtual ? null : (tosses as number[])) : undefined,
-      };
-      const res = await api.createReading(body);
-      setResult(res);
-      setPreview(res.symbol);
-    } catch (e) {
-      setError(e as ApiError);
-    } finally {
-      setLoading(false);
+    const body = {
+      mode,
+      question,
+      trigram_id: mode === "8" ? trigramId ?? undefined : undefined,
+      lower_id: mode === "64" ? lowerId ?? undefined : undefined,
+      upper_id: mode === "64" ? upperId ?? undefined : undefined,
+      tosses: mode === "coins" ? (virtual ? null : (tosses as number[])) : undefined,
+    };
+
+    let streamed = false;
+    async function fallback() {
+      try {
+        const res = await api.createReading(body);
+        setResult(res);
+        setPreview(res.symbol);
+      } catch (e) {
+        setError(e as ApiError);
+      } finally {
+        setLoading(false);
+      }
     }
+
+    await api.streamReading(body, {
+      onDelta: (t) => {
+        streamed = true;
+        setStreamText((s) => s + t);
+      },
+      onDone: (res) => {
+        setResult(res);
+        setPreview(res.symbol);
+        setStreamText("");
+        setLoading(false);
+      },
+      onError: (err) => {
+        // если ничего не пришло по стриму — пробуем обычный вызов
+        if (!streamed) void fallback();
+        else {
+          setError(err);
+          setLoading(false);
+        }
+      },
+    });
   }
 
   const lastVirtual = mode === "coins" && !tossesComplete;
@@ -181,6 +207,7 @@ export default function App() {
               result={result}
               loading={loading}
               error={error}
+              streamingText={streamText}
               onRetry={() => submit(lastVirtual)}
             />
           )}
