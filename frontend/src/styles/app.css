@@ -1,0 +1,265 @@
+/* Компонентные стили экрана «Гадание». Цвета — из palette.css. */
+
+.app-header h1 {
+  margin: 0;
+}
+.app-header .muted {
+  margin: 0.25rem 0 1rem;
+}
+
+.tabs,
+.mode-switch {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.tabs button,
+.mode-switch button {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--paper-dim);
+  background: transparent;
+  color: var(--ink-text);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.tabs button.active,
+.mode-switch button.active {
+  border-color: var(--cinnabar);
+  color: var(--cinnabar);
+  font-weight: 600;
+}
+
+/* Ввод вопроса */
+.question-input {
+  margin-bottom: 1rem;
+}
+.q-label {
+  display: block;
+  font-family: var(--serif);
+  margin-bottom: 0.35rem;
+}
+.question-input textarea {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid var(--paper-dim);
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+  background: #fff;
+}
+.q-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.4rem;
+}
+
+/* Плашки */
+.plash {
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.plash.hint {
+  background: var(--paper-dim);
+}
+.plash.crisis {
+  background: #f6e2dd;
+  border: 1px solid var(--cinnabar);
+}
+.plash.error {
+  background: #f6e2dd;
+}
+
+.how-to {
+  margin-bottom: 1rem;
+}
+.how-to summary {
+  cursor: pointer;
+  font-family: var(--serif);
+}
+
+/* Триграммы: линии */
+.trigram-lines {
+  display: flex;
+  flex-direction: column;
+}
+.tl-row {
+  display: flex;
+  justify-content: center;
+  gap: 14%;
+}
+.tl-bar {
+  display: inline-block;
+  height: 100%;
+  background: var(--ink);
+  border-radius: 2px;
+}
+
+/* Сетка триграмм */
+.trigram-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.trigram-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.7rem 0.4rem;
+  border: 2px solid var(--paper-dim);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+.trigram-card.selected {
+  border-color: var(--cinnabar);
+}
+.tc-name {
+  font-family: var(--serif);
+}
+.hanzi {
+  color: var(--faded);
+}
+
+/* Пикер гексаграммы */
+.picker-row {
+  margin-bottom: 0.8rem;
+}
+.picker-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+.picker-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  border: 2px solid var(--paper-dim);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+.picker-chip.selected {
+  border-color: var(--cinnabar);
+}
+.hex-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem;
+  background: var(--paper-dim);
+  border-radius: 10px;
+  margin-top: 0.5rem;
+}
+.hex-num {
+  font-size: 1.4rem;
+  font-family: var(--serif);
+}
+
+/* Монеты */
+.coins-row {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+}
+.coins-row select {
+  padding: 0.4rem;
+  font: inherit;
+}
+
+/* Кнопки */
+.btn-primary {
+  margin-top: 1rem;
+  padding: 0.7rem 1.4rem;
+  background: var(--cinnabar);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  padding: 0.4rem 0.8rem;
+  background: transparent;
+  border: 1px solid var(--faded);
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  white-space: nowrap;
+}
+
+/* Результат */
+.reading-result {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--paper-dim);
+}
+.rr-header {
+  display: flex;
+  gap: 1.2rem;
+  align-items: flex-start;
+  position: relative;
+}
+.rr-meta {
+  flex: 1;
+}
+.rr-meta h2 {
+  margin: 0 0 0.3rem;
+}
+.rr-classic {
+  margin-top: 0.6rem;
+}
+.rr-seal {
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cinnabar);
+  color: #fff;
+  font-size: 1.8rem;
+  border-radius: 8px;
+  font-family: var(--serif);
+}
+.rr-loading {
+  margin-top: 1rem;
+  color: var(--faded);
+  font-style: italic;
+}
+.rr-block {
+  margin-top: 1rem;
+}
+.rr-block h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+}
+.rr-secondary {
+  margin-top: 1rem;
+}
+.rr-disclaimer {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  border-top: 1px dashed var(--paper-dim);
+  padding-top: 0.8rem;
+}
+
+@media (max-width: 520px) {
+  .trigram-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
