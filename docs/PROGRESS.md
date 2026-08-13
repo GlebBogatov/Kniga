@@ -91,9 +91,24 @@
 
 *(точные хеши коммитов — в `git log`.)*
 
+## Этап 8 — Дневник · 2026-08-13
+
+- Backend: `services/readings.py` — `list_journal`, `delete_reading`,
+  `analyze_journal` (≥2 записей, компактная выжимка → structured LLM).
+- `routers/journal.py`: `GET /api/journal`, `DELETE /api/journal/{id}`,
+  `POST /api/journal/analyze` (400 при <2, лимит 5/сутки).
+- Frontend: обобщён `api/client` (GET/DELETE), компонент `Journal`
+  (список с датой `ru-RU`, вопрос киноварью, удаление с confirm, анализ),
+  подключён в таб «Дневник».
+- **Тесты:** backend `test_journal` (список/удаление/404/analyze) — 43 passed;
+  frontend typecheck + 13 vitest — ок.
+
+*(точные хеши коммитов — в `git log`.)*
+
 ---
 
 ## Что дальше
 
-Этап 8 — Дневник: backend `GET/DELETE /api/journal`, `POST /api/journal/analyze`
-(≥2 записей) + экран дневника и анализа на фронте.
+Этап 9 — уточняющий чат: `POST /api/reading/{id}/chat` (лимит 5, история
+`ChatMessage`) + компонент `FollowUpChat`. Далее: стриминг (10), пресеты и
+справочник (11–12), README и финальный прогон (13).

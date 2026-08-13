@@ -1,4 +1,6 @@
-"""Бизнес-логика гадания: сборка символа, промпта, вызов LLM, сохранение записи."""
+"""Бизнес-логика гадания и дневника: символ, промпт, вызов LLM, запись, анализ."""
+import json
+
 from sqlalchemy.orm import Session
 
 from .. import schemas
@@ -83,3 +85,65 @@ def create_reading(
     if is_coins:
         response["lines_commentary"] = data.get("lines_commentary", [])
     return response
+
+
+# --- Дневник ---
+
+
+def list_journal(db: Session, limit: int = 100, offset: int = 0) -> list[dict]:
+    rows = (
+        db.query(Reading)
+        .order_by(Reading.created_at.desc(), Reading.id.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+    return [
+        {
+            "id": r.id,
+            "ts": r.created_at.isoformat() if r.created_at else None,
+            "mode": r.mode,
+            "symbol_label": r.symbol_label,
+            "element": r.element,
+            "question": r.question,
+            "interpretation": r.interpretation,
+            "advice": r.advice,
+        }
+        for r in rows
+    ]
+
+
+def delete_reading(db: Session, reading_id: int) -> bool:
+    row = db.get(Reading, reading_id)
+    if row is None:
+        return False
+    db.delete(row)
+    db.commit()
+    return True
+
+
+def analyze_journal(db: Session, llm: LLMService | None = None) -> dict:
+    llm = llm or get_llm_service()
+    rows = (
+        db.query(Reading)
+        .order_by(Reading.created_at.desc(), Reading.id.desc())
+        .all()
+    )
+    if len(rows) < 2:
+        raise ValueError("Для анализа нужно минимум 2 записи в дневнике.")
+
+    entries = [
+        {
+            "date": r.created_at.isoformat() if r.created_at else None,
+            "symbol": r.symbol_label,
+            "element": r.element,
+            "question": r.question,
+        }
+        for r in rows
+    ]
+    prompt = prompts.journal_analysis_prompt(json.dumps(entries, ensure_ascii=False))
+    data = llm.call_structured(
+        prompt, schemas.JOURNAL_ANALYSIS_SCHEMA,
+        model=settings.model_interpretation, max_tokens=1500,
+    )
+    return {"analysis_markdown": data["analysis_markdown"]}

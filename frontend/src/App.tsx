@@ -3,6 +3,7 @@ import { useState } from "react";
 import { api } from "./api/client";
 import { CoinsInput } from "./components/CoinsInput";
 import { HexagramPicker } from "./components/HexagramPicker";
+import { Journal } from "./components/Journal";
 import { QuestionInput } from "./components/QuestionInput";
 import { ReadingResult } from "./components/ReadingResult";
 import { TrigramGrid } from "./components/TrigramGrid";
@@ -114,7 +115,7 @@ export default function App() {
         </nav>
       </header>
 
-      {tab === "journal" && <p className="muted">{copy.journalEmpty}</p>}
+      {tab === "journal" && <Journal />}
 
       {tab === "reading" && (
         <>

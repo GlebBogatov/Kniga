@@ -1,25 +1,31 @@
-import type { ApiError, QuestionCheck, ReadingResponse, Style } from "../types";
+import type {
+  ApiError,
+  JournalAnalysis,
+  JournalEntry,
+  QuestionCheck,
+  ReadingResponse,
+  Style,
+} from "../types";
 
 const BASE = "/api";
 const TIMEOUT_MS = 60_000;
 
-async function request<T>(path: string, body: unknown): Promise<T> {
+async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
     const res = await fetch(BASE + path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      method,
+      headers: body !== undefined ? { "Content-Type": "application/json" } : undefined,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
       signal: controller.signal,
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const err: ApiError = {
+      throw {
         status: res.status,
         detail: (data as { detail?: string }).detail ?? "Ошибка запроса",
-      };
-      throw err;
+      } as ApiError;
     }
     return data as T;
   } catch (e) {
@@ -45,7 +51,10 @@ export interface ReadingRequestBody {
 
 export const api = {
   createReading: (body: ReadingRequestBody) =>
-    request<ReadingResponse>("/reading", body),
+    request<ReadingResponse>("POST", "/reading", body),
   checkQuestion: (question: string) =>
-    request<QuestionCheck>("/question/check", { question }),
+    request<QuestionCheck>("POST", "/question/check", { question }),
+  getJournal: () => request<JournalEntry[]>("GET", "/journal"),
+  deleteEntry: (id: number) => request<{ deleted: number }>("DELETE", `/journal/${id}`),
+  analyzeJournal: () => request<JournalAnalysis>("POST", "/journal/analyze", {}),
 };

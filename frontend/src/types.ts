@@ -62,6 +62,21 @@ export interface QuestionCheck {
   crisis: boolean;
 }
 
+export interface JournalEntry {
+  id: number;
+  ts: string | null;
+  mode: string;
+  symbol_label: string;
+  element: string;
+  question: string;
+  interpretation: string;
+  advice: string;
+}
+
+export interface JournalAnalysis {
+  analysis_markdown: string;
+}
+
 export interface ApiError {
   status: number;
   detail: string;
