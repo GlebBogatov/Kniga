@@ -258,6 +258,47 @@
   padding-top: 0.8rem;
 }
 
+/* Уточняющий чат */
+.follow-chat {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--paper-dim);
+}
+.follow-chat h3 {
+  margin: 0 0 0.6rem;
+}
+.fc-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.fc-msg {
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  max-width: 85%;
+}
+.fc-msg.user {
+  align-self: flex-end;
+  background: var(--cinnabar);
+  color: #fff;
+}
+.fc-msg.assistant {
+  align-self: flex-start;
+  background: var(--paper-dim);
+}
+.fc-input {
+  display: flex;
+  gap: 0.5rem;
+}
+.fc-input input {
+  flex: 1;
+  padding: 0.55rem;
+  border: 1px solid var(--paper-dim);
+  border-radius: 8px;
+  font: inherit;
+}
+
 /* Дневник */
 .journal-toolbar {
   display: flex;

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from .. import schemas
 from ..config import settings
-from ..models import Reading
+from ..models import ChatMessage, Reading
 from . import prompts
 from .divination import coins_symbol, hexagram_symbol, trigram_symbol
 from .llm import LLMService, get_llm_service
@@ -120,6 +120,36 @@ def delete_reading(db: Session, reading_id: int) -> bool:
     db.delete(row)
     db.commit()
     return True
+
+
+CHAT_LIMIT = 5
+
+
+def chat(db: Session, reading_id: int, message: str, llm: LLMService | None = None) -> dict:
+    llm = llm or get_llm_service()
+    reading = db.get(Reading, reading_id)
+    if reading is None:
+        raise LookupError("Гадание не найдено.")
+
+    used = sum(1 for m in reading.messages if m.role == "user")
+    if used >= CHAT_LIMIT:
+        raise ValueError(f"Достигнут лимит уточнений ({CHAT_LIMIT}).")
+
+    system = prompts.chat_system_prompt(
+        reading.symbol_label, reading.question, reading.interpretation, reading.advice
+    )
+    history = [{"role": m.role, "content": m.content} for m in reading.messages]
+    messages = history + [{"role": "user", "content": message}]
+
+    reply = llm.call_text(
+        system, messages, model=settings.model_interpretation, max_tokens=1000
+    )
+
+    db.add(ChatMessage(reading_id=reading_id, role="user", content=message))
+    db.add(ChatMessage(reading_id=reading_id, role="assistant", content=reply))
+    db.commit()
+
+    return {"reply": reply, "remaining": CHAT_LIMIT - (used + 1)}
 
 
 def analyze_journal(db: Session, llm: LLMService | None = None) -> dict:

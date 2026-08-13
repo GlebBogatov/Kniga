@@ -77,6 +77,16 @@ export interface JournalAnalysis {
   analysis_markdown: string;
 }
 
+export interface ChatTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ChatReply {
+  reply: string;
+  remaining: number;
+}
+
 export interface ApiError {
   status: number;
   detail: string;

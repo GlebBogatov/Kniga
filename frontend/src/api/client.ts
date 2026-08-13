@@ -1,5 +1,6 @@
 import type {
   ApiError,
+  ChatReply,
   JournalAnalysis,
   JournalEntry,
   QuestionCheck,
@@ -57,4 +58,6 @@ export const api = {
   getJournal: () => request<JournalEntry[]>("GET", "/journal"),
   deleteEntry: (id: number) => request<{ deleted: number }>("DELETE", `/journal/${id}`),
   analyzeJournal: () => request<JournalAnalysis>("POST", "/journal/analyze", {}),
+  chat: (readingId: number, message: string) =>
+    request<ChatReply>("POST", `/reading/${readingId}/chat`, { message }),
 };

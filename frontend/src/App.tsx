@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { api } from "./api/client";
 import { CoinsInput } from "./components/CoinsInput";
+import { FollowUpChat } from "./components/FollowUpChat";
 import { HexagramPicker } from "./components/HexagramPicker";
 import { Journal } from "./components/Journal";
 import { QuestionInput } from "./components/QuestionInput";
@@ -183,6 +184,8 @@ export default function App() {
               onRetry={() => submit(lastVirtual)}
             />
           )}
+
+          {result && <FollowUpChat key={result.reading_id} readingId={result.reading_id} />}
 
           {error && !preview && (
             <div className="plash error">
