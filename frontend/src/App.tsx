@@ -140,6 +140,7 @@ export default function App() {
     <main className="app">
       {DEMO && <div className="demo-banner">{copy.demoBanner}</div>}
       <header className="app-header">
+        <div className="hero-aura" aria-hidden="true" />
         <h1>{copy.appTitle}</h1>
         <p className="muted">{copy.appSubtitle}</p>
         <div className="hero-orn" aria-hidden="true">
