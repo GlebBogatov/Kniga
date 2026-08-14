@@ -54,6 +54,8 @@
 
 /* Магнитная кнопка «начни здесь» */
 .hero-cta {
+  position: relative;
+  overflow: hidden;
   display: flex;
   width: fit-content;
   align-items: center;
@@ -73,6 +75,21 @@
   animation: cta-pulse 2.6s ease-in-out infinite;
   transition: transform 0.15s;
 }
+/* Призывный блик, пробегающий по кнопке — «подмигивание» */
+.hero-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    120deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 65%
+  );
+  transform: translateX(-140%);
+  animation: cta-glint 3.4s ease-in-out infinite;
+}
 .hero-cta:hover {
   transform: translateY(-2px) scale(1.03);
 }
@@ -81,7 +98,7 @@
 }
 .hero-cta .spark {
   color: #6a4b12;
-  animation: spark-spin 4.5s linear infinite;
+  animation: spark-spin 4.5s linear infinite, spark-twinkle 1.6s ease-in-out infinite;
 }
 @keyframes cta-pulse {
   0%,
@@ -95,6 +112,26 @@
 @keyframes spark-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+@keyframes spark-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+/* Блик держится у левого края, затем быстро пробегает вправо — ритмичное «мигание» */
+@keyframes cta-glint {
+  0%,
+  55% {
+    transform: translateX(-140%);
+  }
+  80%,
+  100% {
+    transform: translateX(140%);
   }
 }
 .question-input textarea.pulse {
@@ -111,6 +148,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-cta,
+  .hero-cta::after,
   .hero-cta .spark,
   .question-input textarea.pulse {
     animation: none;
