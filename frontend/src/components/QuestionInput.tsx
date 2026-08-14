@@ -18,6 +18,7 @@ export function QuestionInput({
     <div className="question-input">
       <label className="q-label">{copy.question.label}</label>
       <textarea
+        id="question-field"
         value={value}
         maxLength={500}
         rows={3}

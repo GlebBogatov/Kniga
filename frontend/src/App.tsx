@@ -51,6 +51,18 @@ export default function App() {
     resetResult();
   }
 
+  function startReading() {
+    if (tab !== "reading") setTab("reading");
+    requestAnimationFrame(() => {
+      const el = document.getElementById("question-field") as HTMLTextAreaElement | null;
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.focus();
+      el.classList.add("pulse");
+      window.setTimeout(() => el.classList.remove("pulse"), 1200);
+    });
+  }
+
   async function runCheck() {
     setChecking(true);
     try {
@@ -133,6 +145,12 @@ export default function App() {
         <div className="hero-orn" aria-hidden="true">
           ☾ ✦ ☽
         </div>
+        <button type="button" className="hero-cta" onClick={startReading}>
+          <span className="spark" aria-hidden="true">
+            ✦
+          </span>
+          {copy.heroCta}
+        </button>
         <nav className="tabs">
           <button
             className={tab === "reading" ? "active" : ""}
