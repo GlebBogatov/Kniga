@@ -1,15 +1,26 @@
-/* Палитра прототипа. Единый источник цветов для всех компонентов. */
+/* Тёмная мистическая тема (по мотивам tarotoo): глубокий фиолет, кремовый
+   засечный текст, золотые небесные акценты, спот-свет сверху. */
 :root {
-  --ink: #1b2027;
-  --paper: #ede5d3;
-  --paper-dim: #e2d8c2;
-  --cinnabar: #c1442e;
-  --ink-text: #241f19;
-  --faded: #6e6455;
-  --night-card: #232935;
-  --night-border: #3a4150;
+  --bg: #241241;
+  --bg-deep: #150a29;
+  --surface: rgba(44, 26, 78, 0.6); /* полупрозрачная карта */
+  --surface-2: rgba(28, 16, 54, 0.6);
+  --panel: #2a1a4c;
 
-  --serif: Georgia, "Times New Roman", serif;
+  --cream: #ece3d4;
+  --cream-dim: #b6a9c9;
+
+  --gold: #cbab6a;
+  --gold-2: #e3cd97;
+
+  --violet: #7d5bc6;
+  --violet-deep: #4a2d84;
+
+  --border: rgba(203, 171, 106, 0.3);
+  --border-soft: rgba(236, 227, 212, 0.14);
+
+  --display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --heading: "Marcellus", Georgia, serif;
 }
 
 * {
@@ -18,24 +29,40 @@
 
 body {
   margin: 0;
-  background: var(--paper);
-  color: var(--ink-text);
+  color: var(--cream);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 640px at 50% -8%, #64409f 0%, rgba(100, 64, 159, 0) 52%),
+    radial-gradient(680px 460px at 50% 2%, #402472 0%, rgba(64, 36, 114, 0) 60%),
+    linear-gradient(180deg, #2a1650 0%, #1c1036 58%, #150a29 100%);
+  background-attachment: fixed;
+}
+
+/* Золотая звёздная пыль поверх фона */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+  background-image:
+    radial-gradient(1.5px 1.5px at 18% 26%, rgba(227, 205, 151, 0.7) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 72% 16%, rgba(236, 227, 212, 0.5) 50%, transparent 51%),
+    radial-gradient(1.7px 1.7px at 86% 54%, rgba(203, 171, 106, 0.6) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 32% 72%, rgba(236, 227, 212, 0.45) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 58% 40%, rgba(203, 171, 106, 0.5) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 8% 58%, rgba(227, 205, 151, 0.5) 50%, transparent 51%);
+  background-repeat: repeat;
+  background-size: 360px 360px;
 }
 
 h1,
 h2,
 h3 {
-  font-family: var(--serif);
-  color: var(--ink);
-}
-
-.app {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 2rem 1.25rem;
-}
-
-.muted {
-  color: var(--faded);
+  font-family: var(--heading);
+  color: var(--cream);
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }

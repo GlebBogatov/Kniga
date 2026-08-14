@@ -130,6 +130,9 @@ export default function App() {
       <header className="app-header">
         <h1>{copy.appTitle}</h1>
         <p className="muted">{copy.appSubtitle}</p>
+        <div className="hero-orn" aria-hidden="true">
+          ☾ ✦ ☽
+        </div>
         <nav className="tabs">
           <button
             className={tab === "reading" ? "active" : ""}
