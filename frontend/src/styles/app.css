@@ -160,8 +160,24 @@
     box-shadow: 0 0 0 3px rgba(227, 205, 151, 0);
   }
 }
+/* Мягкое мигание для режима «Уменьшение движения»: только яркость и свечение,
+   без перемещений/вращений — безопасно для вестибулярной чувствительности,
+   но кнопка всё равно призывно «дышит» (в т.ч. в Safari с Reduce Motion). */
+@keyframes cta-soft {
+  0%,
+  100% {
+    filter: brightness(1);
+    box-shadow: 0 0 0 0 rgba(227, 205, 151, 0.45), 0 10px 26px rgba(10, 4, 24, 0.4);
+  }
+  50% {
+    filter: brightness(1.2);
+    box-shadow: 0 0 30px 6px rgba(240, 222, 168, 0.6), 0 10px 26px rgba(10, 4, 24, 0.4);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .hero-cta,
+  .hero-cta {
+    animation: cta-soft 2s ease-in-out infinite;
+  }
   .hero-cta::after,
   .hero-cta .spark,
   .question-input textarea.pulse {
