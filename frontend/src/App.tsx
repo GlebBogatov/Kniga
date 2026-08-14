@@ -171,6 +171,14 @@ export default function App() {
 
       {tab === "reading" && (
         <>
+          <Presets
+            onPick={(p) => {
+              setQuestion(p.question_template);
+              setPresetSlug(p.slug);
+              setCheck(null);
+            }}
+          />
+
           <div className="mode-switch">
             {(["8", "64", "coins"] as Mode[]).map((m) => (
               <button
@@ -182,14 +190,6 @@ export default function App() {
               </button>
             ))}
           </div>
-
-          <Presets
-            onPick={(p) => {
-              setQuestion(p.question_template);
-              setPresetSlug(p.slug);
-              setCheck(null);
-            }}
-          />
 
           <QuestionInput
             value={question}
