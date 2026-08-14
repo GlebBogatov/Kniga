@@ -393,6 +393,10 @@
   background: rgba(44, 26, 78, 0.55);
   border: 1px solid var(--border-soft);
 }
+.plash.ok {
+  border-color: var(--border);
+  background: rgba(203, 171, 106, 0.1);
+}
 .plash.crisis {
   border-color: #c1442e;
 }

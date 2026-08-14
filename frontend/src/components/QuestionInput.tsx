@@ -1,3 +1,4 @@
+import { DEMO } from "../api/client";
 import { copy } from "../copy";
 import type { QuestionCheck } from "../types";
 
@@ -36,12 +37,18 @@ export function QuestionInput({
           {checking ? copy.question.checking : copy.question.check}
         </button>
       </div>
-      {check && check.crisis && <div className="plash crisis">{copy.question.crisis}</div>}
-      {check && !check.crisis && check.quality === "vague" && check.hint && (
-        <div className="plash hint">
-          {copy.question.hintVague} {check.hint}
-        </div>
-      )}
+      {check &&
+        (check.crisis ? (
+          <div className="plash crisis">{copy.question.crisis}</div>
+        ) : check.quality === "vague" && check.hint ? (
+          <div className="plash hint">
+            {copy.question.hintVague} {check.hint}
+          </div>
+        ) : (
+          <div className="plash ok">
+            {DEMO ? copy.question.demoStub : copy.question.ok}
+          </div>
+        ))}
     </div>
   );
 }
