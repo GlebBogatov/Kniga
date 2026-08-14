@@ -70,9 +70,10 @@
   font-weight: 600;
   font-size: 1.35rem;
   letter-spacing: 0.03em;
+  max-width: 100%;
   background: linear-gradient(180deg, #f2dfa6, var(--gold));
   box-shadow: 0 10px 26px rgba(10, 4, 24, 0.4);
-  animation: cta-pulse 2.6s ease-in-out infinite;
+  animation: cta-pulse 2.6s ease-in-out infinite, cta-flash 1.4s ease-in-out infinite;
   transition: transform 0.15s;
 }
 /* Призывный блик, пробегающий по кнопке — «подмигивание» */
@@ -115,6 +116,16 @@
 @keyframes spark-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+/* Мигание яркостью всей кнопки — заметно на любом экране, включая телефон */
+@keyframes cta-flash {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.32);
   }
 }
 @keyframes spark-twinkle {
@@ -690,8 +701,74 @@
   margin: 0.25rem 0;
 }
 
+/* ── Планшет ── */
+@media (max-width: 820px) {
+  .app {
+    padding: 1.75rem 1.1rem 3.5rem;
+  }
+  .trigram-card {
+    min-height: 140px;
+  }
+}
+
+/* ── Телефон ── */
 @media (max-width: 560px) {
+  .app {
+    padding: 1.4rem 0.9rem 3rem;
+  }
+  .app-header .muted {
+    font-size: 1.05rem;
+  }
+  .hero-cta {
+    font-size: 1.15rem;
+    padding: 0.8rem 1.6rem;
+  }
   .trigram-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .question-input textarea {
+    font-size: 1.05rem;
+    padding: 0.85rem 1rem;
+  }
+  .coins-row {
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    letter-spacing: 0.1em;
+  }
+  .reading-result {
+    padding: 1.15rem;
+  }
+  .rr-header {
+    gap: 0.9rem;
+  }
+  .rr-meta h2 {
+    font-size: 1.4rem;
+  }
+  .rr-seal {
+    width: 52px;
+    height: 52px;
+    font-size: 1.6rem;
+  }
+  .hex-preview {
+    gap: 0.9rem;
+    padding: 0.9rem 1rem;
+  }
+  .fc-msg {
+    max-width: 92%;
+  }
+}
+
+/* ── Узкий телефон ── */
+@media (max-width: 380px) {
+  .hero-cta {
+    font-size: 1.05rem;
+    padding: 0.75rem 1.2rem;
+  }
+  .mode-switch button,
+  .preset-chip {
+    font-size: 0.8rem;
   }
 }
