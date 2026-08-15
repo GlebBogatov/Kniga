@@ -163,6 +163,27 @@ export interface ConfirmResult {
   user: User;
 }
 
+export interface AdminUser {
+  id: number;
+  created_at: string | null;
+  provider: string;
+  email: string | null;
+  name: string | null;
+  role: string;
+  is_blocked: boolean;
+  subscription: Subscription;
+  readings: number;
+  payments?: PaymentEntry[];
+}
+
+export interface AdminMetrics {
+  users_total: number;
+  users_premium: number;
+  readings_total: number;
+  payments_succeeded: number;
+  revenue_total: number;
+}
+
 export interface ReadingRequestBody {
   mode: Mode;
   question: string;

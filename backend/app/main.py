@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from .config import settings
 from .db import init_db
 from .routers import (
+    admin,
     auth,
     divination,
     health,
@@ -45,6 +46,7 @@ async def limit_body_size(request: Request, call_next):
 app.include_router(health.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
 app.include_router(payments.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
 app.include_router(divination.router, prefix="/api")
 app.include_router(question.router, prefix="/api")
 app.include_router(journal.router, prefix="/api")

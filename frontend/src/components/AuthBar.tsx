@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { DEMO } from "../api/client";
 import { useAuth } from "../auth";
 import { copy } from "../copy";
 import type { Provider } from "../types";
@@ -25,6 +26,11 @@ export function AuthBar() {
         <span className="auth-loading muted">…</span>
       ) : user ? (
         <div className="auth-user">
+          {(user.role === "admin" || DEMO) && (
+            <a className="auth-admin" href="#/admin">
+              {copy.auth.admin}
+            </a>
+          )}
           <a className="auth-cabinet" href="#/cabinet">
             ☾ {user.name ?? copy.auth.cabinet}
           </a>

@@ -153,6 +153,35 @@ def cancel_autorenew(db: Session, user: User) -> Subscription:
     return sub
 
 
+def admin_grant(db: Session, user: User, tariff_id: str) -> Subscription:
+    """Выдать/продлить премиум вручную (админ)."""
+    tariff = TARIFF_BY_ID.get(tariff_id)
+    if tariff is None:
+        raise ValueError("Неизвестный тариф.")
+    sub = _activate_subscription(db, user, tariff)
+    db.commit()
+    db.refresh(sub)
+    return sub
+
+
+def admin_set_free(db: Session, user: User) -> Subscription:
+    """Перевести на бесплатный тариф (админ)."""
+    sub = _get_subscription(db, user)
+    sub.plan = "free"
+    sub.status = "active"
+    sub.current_period_end = None
+    sub.auto_renew = False
+    db.commit()
+    db.refresh(sub)
+    return sub
+
+
+def refund(db: Session, payment: Payment) -> None:
+    """Отметить платёж возвращённым (реальный возврат делает провайдер)."""
+    payment.status = "refunded"
+    db.commit()
+
+
 def payment_public(p: Payment) -> dict:
     return {
         "id": p.id,

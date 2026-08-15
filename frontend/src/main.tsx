@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { AuthProvider } from "./auth";
 import { AuthBar } from "./components/AuthBar";
+import { AdminPage } from "./components/AdminPage";
 import { CabinetPage } from "./components/CabinetPage";
 import { Footer } from "./components/Footer";
 import { LegalPage } from "./components/LegalPage";
@@ -28,6 +29,7 @@ function CurrentPage({ path }: { path: string }) {
   if (legalMatch) return <LegalPage slug={legalMatch[1]} />;
   if (path.startsWith("/cabinet")) return <CabinetPage />;
   if (path.startsWith("/tariffs")) return <TariffsPage />;
+  if (path.startsWith("/admin")) return <AdminPage />;
   return <App />;
 }
 

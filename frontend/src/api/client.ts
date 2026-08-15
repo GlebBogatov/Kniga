@@ -1,4 +1,6 @@
 import type {
+  AdminMetrics,
+  AdminUser,
   ApiError,
   AuthResult,
   ChatReply,
@@ -170,6 +172,23 @@ const realApi = {
     request<ConfirmResult>("POST", `/payments/dev-confirm/${paymentId}`, {}),
   cancelSubscription: () => request<User>("POST", "/subscription/cancel", {}),
   getPayments: () => request<PaymentEntry[]>("GET", "/payments"),
+
+  // Админка владельца (роль admin).
+  adminMetrics: () => request<AdminMetrics>("GET", "/admin/metrics"),
+  adminUsers: (query?: string) =>
+    request<AdminUser[]>(
+      "GET",
+      "/admin/users" + (query ? `?query=${encodeURIComponent(query)}` : ""),
+    ),
+  adminUser: (id: number) => request<AdminUser>("GET", `/admin/users/${id}`),
+  adminBlock: (id: number, blocked: boolean) =>
+    request<AdminUser>("POST", `/admin/users/${id}/${blocked ? "block" : "unblock"}`, {}),
+  adminGrant: (id: number, tariffId: string) =>
+    request<AdminUser>("POST", `/admin/users/${id}/grant`, { tariff_id: tariffId }),
+  adminSetFree: (id: number) =>
+    request<AdminUser>("POST", `/admin/users/${id}/set-free`, {}),
+  adminRefund: (id: number, paymentId: number) =>
+    request<PaymentEntry>("POST", `/admin/users/${id}/refund/${paymentId}`, {}),
 };
 
 export const DEMO = import.meta.env.VITE_DEMO === "1";

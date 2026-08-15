@@ -1069,6 +1069,125 @@
   background: rgba(193, 68, 46, 0.16);
 }
 
+.auth-admin {
+  color: var(--gold-2);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+}
+.auth-admin:hover {
+  border-color: var(--gold);
+}
+
+/* Админка */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.4rem;
+}
+.metric-card {
+  background: rgba(28, 16, 54, 0.6);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 1rem;
+  text-align: center;
+}
+.metric-value {
+  font-family: var(--heading);
+  font-size: 1.8rem;
+  color: var(--gold-2);
+}
+.metric-label {
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+}
+.admin-search {
+  margin-bottom: 1rem;
+}
+.admin-search input {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: rgba(20, 10, 41, 0.55);
+  color: var(--cream);
+  font: inherit;
+}
+.admin-search input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.admin-table-wrap {
+  overflow-x: auto;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+.admin-table th {
+  color: var(--cream-dim);
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+.au-name {
+  color: var(--cream);
+}
+.au-email {
+  font-size: 0.78rem;
+}
+.au-blocked {
+  color: #e88;
+}
+.au-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.au-actions button,
+.au-refund {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border-soft);
+  background: transparent;
+  color: var(--cream);
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  transition: border-color 0.15s;
+}
+.au-actions button:hover,
+.au-refund:hover {
+  border-color: var(--gold);
+}
+.au-payrow td {
+  background: rgba(20, 10, 41, 0.4);
+}
+.au-payments {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.au-payments li {
+  padding: 0.3rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.au-refund {
+  border-color: #c1442e;
+  color: #e88;
+}
+
 /* Тарифы */
 .tariffs-sub {
   font-family: var(--display);

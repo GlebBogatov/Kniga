@@ -2,6 +2,8 @@
 // толкования — заглушки, без обращения к ИИ. Включается флагом VITE_DEMO=1.
 import { coinsPreview, hexagramPreview, trigramPreview } from "../data/symbol";
 import type {
+  AdminMetrics,
+  AdminUser,
   ApiError,
   AuthResult,
   ChatReply,
@@ -56,6 +58,31 @@ const DEMO_TARIFFS: Tariff[] = [
 const DEMO_TARIFF_BY_ID: Record<string, Tariff> = Object.fromEntries(
   DEMO_TARIFFS.map((t) => [t.id, t]),
 );
+
+// Демо-данные админки (без бэкенда): несколько выдуманных пользователей.
+function daysFromNow(d: number): string {
+  return new Date(Date.now() + d * 86400000).toISOString();
+}
+const demoAdmin: AdminUser[] = [
+  { id: 2, created_at: daysFromNow(-40), provider: "vk", email: "maria@example.com", name: "Мария", role: "user", is_blocked: false, subscription: { plan: "premium", status: "active", current_period_end: daysFromNow(18), auto_renew: true }, readings: 24, payments: [{ id: 11, tariff_id: "premium_month", amount: 399, currency: "RUB", status: "succeeded", receipt: "Чек (заглушка)", created_at: daysFromNow(-12) }] },
+  { id: 3, created_at: daysFromNow(-20), provider: "yandex", email: "ivan@example.com", name: "Иван", role: "user", is_blocked: false, subscription: { plan: "free", status: "active", current_period_end: null, auto_renew: false }, readings: 5, payments: [] },
+  { id: 4, created_at: daysFromNow(-9), provider: "vk", email: "olga@example.com", name: "Ольга", role: "user", is_blocked: false, subscription: { plan: "premium", status: "active", current_period_end: daysFromNow(6), auto_renew: false }, readings: 11, payments: [{ id: 12, tariff_id: "premium_year", amount: 2990, currency: "RUB", status: "succeeded", receipt: "Чек (заглушка)", created_at: daysFromNow(-9) }] },
+  { id: 5, created_at: daysFromNow(-3), provider: "yandex", email: "spam@example.com", name: "Гость", role: "user", is_blocked: true, subscription: { plan: "free", status: "active", current_period_end: null, auto_renew: false }, readings: 1, payments: [] },
+];
+
+function demoMetrics(): AdminMetrics {
+  const revenue = demoAdmin
+    .flatMap((u) => u.payments ?? [])
+    .filter((p) => p.status === "succeeded")
+    .reduce((s, p) => s + p.amount, 0);
+  return {
+    users_total: demoAdmin.length,
+    users_premium: demoAdmin.filter((u) => u.subscription.plan === "premium").length,
+    readings_total: demoAdmin.reduce((s, u) => s + u.readings, 0),
+    payments_succeeded: demoAdmin.flatMap((u) => u.payments ?? []).filter((p) => p.status === "succeeded").length,
+    revenue_total: revenue,
+  };
+}
 
 // Демо-лимит бесплатного тарифа: чтобы показать путь «лимит → оплата → премиум».
 const DEMO_FREE_LIMIT = 3;
@@ -293,6 +320,56 @@ export const demoApi = {
         created_at: new Date().toISOString(),
       },
     ];
+  },
+
+  // --- Админка (заглушка) ---
+  adminMetrics: async (): Promise<AdminMetrics> => demoMetrics(),
+
+  adminUsers: async (query?: string): Promise<AdminUser[]> => {
+    if (!query) return demoAdmin;
+    const q = query.toLowerCase();
+    return demoAdmin.filter(
+      (u) =>
+        (u.email ?? "").toLowerCase().includes(q) ||
+        (u.name ?? "").toLowerCase().includes(q),
+    );
+  },
+
+  adminUser: async (id: number): Promise<AdminUser> => {
+    const u = demoAdmin.find((x) => x.id === id);
+    if (!u) throw { status: 404, detail: "Пользователь не найден." } as ApiError;
+    return u;
+  },
+
+  adminBlock: async (id: number, blocked: boolean): Promise<AdminUser> => {
+    const u = demoAdmin.find((x) => x.id === id)!;
+    u.is_blocked = blocked;
+    return u;
+  },
+
+  adminGrant: async (id: number, tariffId: string): Promise<AdminUser> => {
+    const u = demoAdmin.find((x) => x.id === id)!;
+    const t = DEMO_TARIFF_BY_ID[tariffId];
+    u.subscription = {
+      plan: "premium",
+      status: "active",
+      current_period_end: daysFromNow(t ? t.period_days : 30),
+      auto_renew: true,
+    };
+    return u;
+  },
+
+  adminSetFree: async (id: number): Promise<AdminUser> => {
+    const u = demoAdmin.find((x) => x.id === id)!;
+    u.subscription = { plan: "free", status: "active", current_period_end: null, auto_renew: false };
+    return u;
+  },
+
+  adminRefund: async (id: number, paymentId: number): Promise<PaymentEntry> => {
+    const u = demoAdmin.find((x) => x.id === id)!;
+    const p = (u.payments ?? []).find((x) => x.id === paymentId)!;
+    p.status = "refunded";
+    return p;
   },
 };
 
