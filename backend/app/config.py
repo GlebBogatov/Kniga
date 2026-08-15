@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     model_interpretation: str = "claude-sonnet-5"
     model_light: str = "claude-haiku-4-5"
 
+    # Аккаунты / сессии
+    # Заглушка входа вместо реального VK/Яндекс OAuth (внешние сервисы —
+    # пока заглушки; реальные ключи подключаются позже).
+    allow_dev_login: bool = True
+    session_ttl_days: int = 30
+
     # Прочее
     db_url: str = "sqlite:///./iching.db"
     cors_origins: str = "http://localhost:5173"

@@ -42,6 +42,21 @@ class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=500)
 
 
+class DevLoginRequest(BaseModel):
+    """Заглушка входа вместо реального VK/Яндекс OAuth."""
+
+    provider: Literal["vk", "yandex", "dev"] = "dev"
+    provider_user_id: str = Field(min_length=1, max_length=64)
+    email: Optional[str] = Field(default=None, max_length=255)
+    name: Optional[str] = Field(default=None, max_length=120)
+    role: Optional[Literal["user", "admin", "editor"]] = None
+
+
+class ProfileUpdateRequest(BaseModel):
+    name: Optional[str] = Field(default=None, max_length=120)
+    email: Optional[str] = Field(default=None, max_length=255)
+
+
 class QuestionCheckRequest(BaseModel):
     question: str = Field(min_length=1, max_length=500)
 

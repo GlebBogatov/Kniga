@@ -4,6 +4,8 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from ..db import get_db
+from ..deps import get_current_user_optional
+from ..models import User
 from ..schemas import ChatRequest, ReadingRequest
 from ..services import readings
 from ..services.llm import LLMCallError, LLMService, LLMUnavailable, get_llm_service
@@ -12,15 +14,20 @@ from ..services.ratelimit import READING_LIMITS, rate_limit
 router = APIRouter(tags=["divination"])
 
 
+def _uid(user: User | None) -> int | None:
+    return user.id if user else None
+
+
 @router.post("/reading")
 def create_reading(
     req: ReadingRequest,
     db: Session = Depends(get_db),
     llm: LLMService = Depends(get_llm_service),
+    user: User | None = Depends(get_current_user_optional),
     _rl: None = Depends(rate_limit("reading", READING_LIMITS)),
 ) -> dict:
     try:
-        return readings.create_reading(db, req, llm)
+        return readings.create_reading(db, req, llm, user_id=_uid(user))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
     except LLMUnavailable:
@@ -39,10 +46,12 @@ def reading_stream(
     req: ReadingRequest,
     db: Session = Depends(get_db),
     llm: LLMService = Depends(get_llm_service),
+    user: User | None = Depends(get_current_user_optional),
     _rl: None = Depends(rate_limit("reading", READING_LIMITS)),
 ) -> StreamingResponse:
     return StreamingResponse(
-        readings.stream_reading(db, req, llm), media_type="text/event-stream"
+        readings.stream_reading(db, req, llm, user_id=_uid(user)),
+        media_type="text/event-stream",
     )
 
 

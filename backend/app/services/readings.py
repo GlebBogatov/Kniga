@@ -52,6 +52,7 @@ def create_reading(
     llm: LLMService | None = None,
     *,
     preset_focus: str | None = None,
+    user_id: int | None = None,
 ) -> dict:
     llm = llm or get_llm_service()
     symbol = build_symbol(req)
@@ -70,6 +71,7 @@ def create_reading(
     )
 
     reading = Reading(
+        user_id=user_id,
         mode=req.mode,
         symbol_key=symbol_key(symbol),
         symbol_label=symbol_label(symbol),
@@ -101,9 +103,12 @@ def create_reading(
 # --- Дневник ---
 
 
-def list_journal(db: Session, limit: int = 100, offset: int = 0) -> list[dict]:
+def list_journal(
+    db: Session, limit: int = 100, offset: int = 0, *, user_id: int | None = None
+) -> list[dict]:
     rows = (
         db.query(Reading)
+        .filter(Reading.user_id == user_id)
         .order_by(Reading.created_at.desc(), Reading.id.desc())
         .limit(limit)
         .offset(offset)
@@ -124,9 +129,9 @@ def list_journal(db: Session, limit: int = 100, offset: int = 0) -> list[dict]:
     ]
 
 
-def delete_reading(db: Session, reading_id: int) -> bool:
+def delete_reading(db: Session, reading_id: int, *, user_id: int | None = None) -> bool:
     row = db.get(Reading, reading_id)
-    if row is None:
+    if row is None or row.user_id != user_id:
         return False
     db.delete(row)
     db.commit()
@@ -137,7 +142,10 @@ def _sse(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
-def stream_reading(db: Session, req: schemas.ReadingRequest, llm: LLMService | None = None):
+def stream_reading(
+    db: Session, req: schemas.ReadingRequest, llm: LLMService | None = None,
+    *, user_id: int | None = None,
+):
     """Генератор SSE: стримит текст толкования, затем добирает поля и сохраняет запись."""
     llm = llm or get_llm_service()
     try:
@@ -169,6 +177,7 @@ def stream_reading(db: Session, req: schemas.ReadingRequest, llm: LLMService | N
         return
 
     reading = Reading(
+        user_id=user_id,
         mode=req.mode, symbol_key=symbol_key(symbol), symbol_label=symbol_label(symbol),
         element=symbol_element(symbol), question=req.question, interpretation=interpretation,
         advice=trailer["advice"], caution=trailer["caution"], next_step=trailer["next_step"],
@@ -217,10 +226,13 @@ def chat(db: Session, reading_id: int, message: str, llm: LLMService | None = No
     return {"reply": reply, "remaining": CHAT_LIMIT - (used + 1)}
 
 
-def analyze_journal(db: Session, llm: LLMService | None = None) -> dict:
+def analyze_journal(
+    db: Session, llm: LLMService | None = None, *, user_id: int | None = None
+) -> dict:
     llm = llm or get_llm_service()
     rows = (
         db.query(Reading)
+        .filter(Reading.user_id == user_id)
         .order_by(Reading.created_at.desc(), Reading.id.desc())
         .all()
     )

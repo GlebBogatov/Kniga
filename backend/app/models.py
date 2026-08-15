@@ -1,11 +1,21 @@
-"""SQLAlchemy-модели: Reading (гадание) и ChatMessage (уточняющий чат).
+"""SQLAlchemy-модели.
 
-Аутентификации нет (однопользовательское), но структура рассчитана на
-добавление user_id позже без переписывания логики.
+- Reading / ChatMessage — гадание и уточняющий чат.
+- User / Subscription / UserSession — учётные записи, подписка, сессии.
+
+Reading.user_id опционален: до входа гадания анонимны (user_id = NULL),
+после входа привязываются к пользователю.
 """
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import ForeignKey, String, Text, func
+from sqlalchemy import (
+    Boolean,
+    ForeignKey,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -16,6 +26,9 @@ class Reading(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
+    )
     mode: Mapped[str] = mapped_column(String(8))            # "8" | "64" | "coins"
     symbol_key: Mapped[str] = mapped_column(String(32))     # "qian" | "li+kan"
     symbol_label: Mapped[str] = mapped_column(String(255))
@@ -45,3 +58,57 @@ class ChatMessage(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     reading: Mapped["Reading"] = relationship(back_populates="messages")
+
+
+class User(Base):
+    __tablename__ = "users"
+    __table_args__ = (
+        UniqueConstraint("provider", "provider_user_id", name="uq_provider_user"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    provider: Mapped[str] = mapped_column(String(16))       # "vk" | "yandex" | "dev"
+    provider_user_id: Mapped[str] = mapped_column(String(64))
+    email: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    name: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    birth_date: Mapped[date | None] = mapped_column(nullable=True)
+    role: Mapped[str] = mapped_column(String(16), default="user")   # user | admin | editor
+    is_blocked: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    subscription: Mapped["Subscription | None"] = relationship(
+        back_populates="user", uselist=False, cascade="all, delete-orphan"
+    )
+
+
+class Subscription(Base):
+    __tablename__ = "subscriptions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True
+    )
+    plan: Mapped[str] = mapped_column(String(16), default="free")     # free | premium
+    status: Mapped[str] = mapped_column(String(16), default="active")  # active|canceled|expired
+    current_period_end: Mapped[datetime | None] = mapped_column(nullable=True)
+    auto_renew: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), onupdate=func.now()
+    )
+
+    user: Mapped["User"] = relationship(back_populates="subscription")
+
+
+class UserSession(Base):
+    __tablename__ = "user_sessions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    token: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    expires_at: Mapped[datetime] = mapped_column()
+
+    user: Mapped["User"] = relationship()
