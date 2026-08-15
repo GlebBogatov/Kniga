@@ -112,3 +112,21 @@ class UserSession(Base):
     expires_at: Mapped[datetime] = mapped_column()
 
     user: Mapped["User"] = relationship()
+
+
+class Payment(Base):
+    __tablename__ = "payments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    tariff_id: Mapped[str] = mapped_column(String(32))
+    plan: Mapped[str] = mapped_column(String(16))
+    amount: Mapped[int] = mapped_column()                 # рубли
+    currency: Mapped[str] = mapped_column(String(8), default="RUB")
+    status: Mapped[str] = mapped_column(String(16), default="pending")  # pending|succeeded|canceled|refunded
+    provider: Mapped[str] = mapped_column(String(16), default="stub")
+    provider_payment_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    receipt_stub: Mapped[str | None] = mapped_column(String(255), nullable=True)  # чек 54-ФЗ (заглушка)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())

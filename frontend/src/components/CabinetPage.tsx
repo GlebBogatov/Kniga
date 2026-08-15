@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { api } from "../api/client";
 import { useAuth } from "../auth";
 import { copy } from "../copy";
 import type { Provider, Subscription } from "../types";
@@ -14,7 +15,8 @@ function statusLabel(s: Subscription["status"]): string {
 }
 
 export function CabinetPage() {
-  const { user, loading, login, logout, updateProfile, deleteAccount } = useAuth();
+  const { user, loading, login, logout, updateProfile, deleteAccount, refresh } =
+    useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
@@ -136,6 +138,17 @@ export function CabinetPage() {
           <a className="btn-secondary" href="#/tariffs">
             {copy.cabinet.manage}
           </a>
+          {premium && sub.auto_renew && (
+            <button
+              className="btn-secondary"
+              onClick={async () => {
+                await api.cancelSubscription();
+                await refresh();
+              }}
+            >
+              {copy.cabinet.cancelRenew}
+            </button>
+          )}
         </div>
       </section>
 

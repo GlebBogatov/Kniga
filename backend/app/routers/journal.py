@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from ..db import get_db
 from ..deps import get_current_user_optional
 from ..models import User
-from ..services import readings
+from ..services import payments, readings
 from ..services.llm import LLMCallError, LLMService, LLMUnavailable, get_llm_service
 from ..services.ratelimit import ANALYZE_LIMITS, rate_limit
 
@@ -49,7 +49,10 @@ def analyze(
     _rl: None = Depends(rate_limit("analyze", ANALYZE_LIMITS)),
 ) -> dict:
     try:
+        payments.ensure_premium(user)
         return readings.analyze_journal(db, llm, user_id=_uid(user))
+    except payments.PremiumRequired as exc:
+        raise HTTPException(status_code=402, detail=str(exc))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except LLMUnavailable:

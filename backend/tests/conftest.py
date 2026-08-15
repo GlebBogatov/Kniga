@@ -60,12 +60,14 @@ app.dependency_overrides[get_llm_service] = lambda: FakeLLM()
 @pytest.fixture(autouse=True)
 def _reset_state():
     settings.rate_limit_enabled = False
+    settings.freemium_enabled = False
     limiter.reset()
     with engine.begin() as conn:
         for table in reversed(Base.metadata.sorted_tables):
             conn.execute(table.delete())
     yield
     settings.rate_limit_enabled = False
+    settings.freemium_enabled = False
     limiter.reset()
 
 

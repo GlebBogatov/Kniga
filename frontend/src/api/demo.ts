@@ -5,15 +5,19 @@ import type {
   ApiError,
   AuthResult,
   ChatReply,
+  CheckoutInit,
+  ConfirmResult,
   DivinationSymbol,
   JournalAnalysis,
   JournalEntry,
+  PaymentEntry,
   Preset,
   ProfilePatch,
   QuestionCheck,
   ReadingRequestBody,
   ReadingResponse,
   StreamHandlers,
+  Tariff,
   User,
 } from "../types";
 
@@ -44,6 +48,32 @@ function providerLabel(p: string): string {
   return p === "vk" ? "VK" : p === "yandex" ? "Яндекс" : "гость";
 }
 
+// Демо-тарифы (совпадают с backend/data/tariffs.py).
+const DEMO_TARIFFS: Tariff[] = [
+  { id: "premium_month", plan: "premium", period: "month", period_days: 30, price: 399, title: "Премиум · месяц", subtitle: "Безлимит гаданий и все функции" },
+  { id: "premium_year", plan: "premium", period: "year", period_days: 365, price: 2990, title: "Премиум · год", subtitle: "Год дешевле — как ~7,5 месяцев" },
+];
+const DEMO_TARIFF_BY_ID: Record<string, Tariff> = Object.fromEntries(
+  DEMO_TARIFFS.map((t) => [t.id, t]),
+);
+
+// Демо-лимит бесплатного тарифа: чтобы показать путь «лимит → оплата → премиум».
+const DEMO_FREE_LIMIT = 3;
+let demoReadings = 0;
+
+function demoQuotaError(): ApiError | null {
+  const user = readDemoUser();
+  if (user && user.subscription.plan !== "premium" && demoReadings >= DEMO_FREE_LIMIT) {
+    return {
+      status: 402,
+      detail:
+        `Достигнут дневной лимит бесплатного тарифа (${DEMO_FREE_LIMIT}). ` +
+        "Оформите подписку для безлимита.",
+    };
+  }
+  return null;
+}
+
 const BLOCKS = {
   interpretation:
     "✧ Здесь будет ИИ-мудрость ✧ — толкование «Книги перемен» под ваш вопрос. " +
@@ -72,17 +102,26 @@ function fullResponse(body: ReadingRequestBody): ReadingResponse {
 
 export const demoApi = {
   createReading: async (body: ReadingRequestBody): Promise<ReadingResponse> => {
+    const q = demoQuotaError();
+    if (q) throw q;
     await sleep(400);
+    demoReadings++;
     return fullResponse(body);
   },
 
   streamReading: async (body: ReadingRequestBody, h: StreamHandlers): Promise<void> => {
+    const q = demoQuotaError();
+    if (q) {
+      h.onError(q);
+      return;
+    }
     const symbol = buildSymbol(body);
     for (const word of BLOCKS.interpretation.split(" ")) {
       await sleep(35);
       h.onDelta(word + " ");
     }
     await sleep(200);
+    demoReadings++;
     h.onDone({ reading_id: ++readingCounter, symbol, ...BLOCKS });
   },
 
@@ -189,6 +228,71 @@ export const demoApi = {
   deleteAccount: async (): Promise<{ deleted: boolean }> => {
     writeDemoUser(null);
     return { deleted: true };
+  },
+
+  // --- Тарифы и оплата (заглушка) ---
+  getTariffs: async (): Promise<Tariff[]> => DEMO_TARIFFS,
+
+  checkout: async (tariffId: string): Promise<CheckoutInit> => {
+    await sleep(200);
+    const t = DEMO_TARIFF_BY_ID[tariffId];
+    return {
+      payment_id: 1,
+      amount: t ? t.price : 0,
+      currency: "RUB",
+      confirmation_url: null,
+      stub: true,
+    };
+  },
+
+  devConfirm: async (): Promise<ConfirmResult> => {
+    await sleep(300);
+    const user = readDemoUser();
+    if (!user) throw { status: 401, detail: "Требуется вход." } as ApiError;
+    user.subscription = {
+      plan: "premium",
+      status: "active",
+      current_period_end: new Date(Date.now() + 30 * 86400000).toISOString(),
+      auto_renew: true,
+    };
+    writeDemoUser(user);
+    demoReadings = 0; // премиум снимает лимит
+    return {
+      user,
+      payment: {
+        id: 1,
+        tariff_id: "premium_month",
+        amount: 399,
+        currency: "RUB",
+        status: "succeeded",
+        receipt: "Чек (заглушка) отправлен на email",
+        created_at: new Date().toISOString(),
+      },
+    };
+  },
+
+  cancelSubscription: async (): Promise<User> => {
+    const user = readDemoUser();
+    if (!user) throw { status: 401, detail: "Требуется вход." } as ApiError;
+    user.subscription.auto_renew = false;
+    writeDemoUser(user);
+    return user;
+  },
+
+  getPayments: async (): Promise<PaymentEntry[]> => {
+    const user = readDemoUser();
+    if (!user || user.subscription.plan !== "premium") return [];
+    return [
+      {
+        id: 1,
+        tariff_id: "premium_month",
+        amount: 399,
+        currency: "RUB",
+        status: "succeeded",
+        receipt: "Чек (заглушка) отправлен на email",
+        created_at: new Date().toISOString(),
+      },
+    ];
   },
 };
 

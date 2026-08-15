@@ -26,6 +26,15 @@ class Settings(BaseSettings):
     allow_dev_login: bool = True
     session_ttl_days: int = 30
 
+    # Тарифы / лимиты (freemium). freemium_enabled выключается в тестах.
+    freemium_enabled: bool = True
+    free_daily_readings: int = 3
+
+    # Платёжный провайдер — пока ЗАГЛУШКА (реальная ЮKassa подключается позже).
+    payment_provider: str = "stub"          # "stub" | "yookassa"
+    yookassa_shop_id: str = ""
+    yookassa_secret_key: str = ""
+
     # Прочее
     db_url: str = "sqlite:///./iching.db"
     cors_origins: str = "http://localhost:5173"

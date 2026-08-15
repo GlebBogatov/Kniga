@@ -2,14 +2,18 @@ import type {
   ApiError,
   AuthResult,
   ChatReply,
+  CheckoutInit,
+  ConfirmResult,
   JournalAnalysis,
   JournalEntry,
+  PaymentEntry,
   Preset,
   ProfilePatch,
   QuestionCheck,
   ReadingRequestBody,
   ReadingResponse,
   StreamHandlers,
+  Tariff,
   User,
 } from "../types";
 import { demoApi } from "./demo";
@@ -157,6 +161,15 @@ const realApi = {
   updateProfile: (patch: ProfilePatch) => request<User>("PATCH", "/auth/me", patch),
   logout: () => request<{ ok: boolean }>("POST", "/auth/logout", {}),
   deleteAccount: () => request<{ deleted: boolean }>("DELETE", "/auth/account"),
+
+  // Тарифы и оплата. Провайдер пока заглушка (dev-confirm вместо реального ЮKassa).
+  getTariffs: () => request<Tariff[]>("GET", "/tariffs"),
+  checkout: (tariffId: string) =>
+    request<CheckoutInit>("POST", "/payments/checkout", { tariff_id: tariffId }),
+  devConfirm: (paymentId: number) =>
+    request<ConfirmResult>("POST", `/payments/dev-confirm/${paymentId}`, {}),
+  cancelSubscription: () => request<User>("POST", "/subscription/cancel", {}),
+  getPayments: () => request<PaymentEntry[]>("GET", "/payments"),
 };
 
 export const DEMO = import.meta.env.VITE_DEMO === "1";

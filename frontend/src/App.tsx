@@ -106,7 +106,9 @@ export default function App() {
         setResult(res);
         setPreview(res.symbol);
       } catch (e) {
-        setError(e as ApiError);
+        const err = e as ApiError;
+        if (err.status === 402) setPreview(null); // лимит: показываем призыв к подписке
+        setError(err);
       } finally {
         setLoading(false);
       }
@@ -124,6 +126,12 @@ export default function App() {
         setLoading(false);
       },
       onError: (err) => {
+        if (err.status === 402) {
+          setError(err);
+          setPreview(null);
+          setLoading(false);
+          return;
+        }
         // если ничего не пришло по стриму — пробуем обычный вызов
         if (!streamed) void fallback();
         else {
@@ -236,6 +244,15 @@ export default function App() {
             {loading ? copy.submitLoading : copy.submit}
           </button>
 
+          {error?.status === 402 && (
+            <div className="plash upgrade">
+              <span>{error.detail}</span>
+              <a className="btn-primary upgrade-btn" href="#/tariffs">
+                {copy.errors.upgrade}
+              </a>
+            </div>
+          )}
+
           {loading && !preview && <div className="rr-loading">{copy.submitLoading}</div>}
 
           {preview && (
@@ -251,7 +268,7 @@ export default function App() {
 
           {result && <FollowUpChat key={result.reading_id} readingId={result.reading_id} />}
 
-          {error && !preview && (
+          {error && !preview && error.status !== 402 && (
             <div className="plash error">
               <span>{copy.errors.generic}</span>
               <button className="btn-secondary" onClick={() => submit(lastVirtual)}>

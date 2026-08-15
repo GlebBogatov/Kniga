@@ -13,7 +13,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 
 from ..config import settings
-from ..models import ChatMessage, Reading, Subscription, User, UserSession
+from ..models import ChatMessage, Payment, Reading, Subscription, User, UserSession
 
 PROVIDERS = ("vk", "yandex", "dev")
 
@@ -97,6 +97,7 @@ def delete_account(db: Session, user: User) -> None:
         ).delete(synchronize_session=False)
     db.query(Reading).filter_by(user_id=user.id).delete(synchronize_session=False)
     db.query(UserSession).filter_by(user_id=user.id).delete(synchronize_session=False)
+    db.query(Payment).filter_by(user_id=user.id).delete(synchronize_session=False)
     db.query(Subscription).filter_by(user_id=user.id).delete(synchronize_session=False)
     db.delete(user)
     db.commit()

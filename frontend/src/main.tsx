@@ -6,6 +6,7 @@ import { AuthBar } from "./components/AuthBar";
 import { CabinetPage } from "./components/CabinetPage";
 import { Footer } from "./components/Footer";
 import { LegalPage } from "./components/LegalPage";
+import { TariffsPage } from "./components/TariffsPage";
 import "./styles/palette.css";
 import "./styles/app.css";
 
@@ -26,6 +27,7 @@ function CurrentPage({ path }: { path: string }) {
   const legalMatch = path.match(/^\/legal\/([\w-]+)/);
   if (legalMatch) return <LegalPage slug={legalMatch[1]} />;
   if (path.startsWith("/cabinet")) return <CabinetPage />;
+  if (path.startsWith("/tariffs")) return <TariffsPage />;
   return <App />;
 }
 

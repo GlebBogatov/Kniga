@@ -130,6 +130,39 @@ export interface ProfilePatch {
   email?: string;
 }
 
+export interface Tariff {
+  id: string;
+  plan: string;
+  period: "month" | "year";
+  period_days: number;
+  price: number;
+  title: string;
+  subtitle: string;
+}
+
+export interface CheckoutInit {
+  payment_id: number;
+  amount: number;
+  currency: string;
+  confirmation_url: string | null;
+  stub: boolean;
+}
+
+export interface PaymentEntry {
+  id: number;
+  tariff_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  receipt: string | null;
+  created_at: string | null;
+}
+
+export interface ConfirmResult {
+  payment: PaymentEntry;
+  user: User;
+}
+
 export interface ReadingRequestBody {
   mode: Mode;
   question: string;
