@@ -5,6 +5,7 @@ import { AuthProvider } from "./auth";
 import { AuthBar } from "./components/AuthBar";
 import { AdminPage } from "./components/AdminPage";
 import { CabinetPage } from "./components/CabinetPage";
+import { CmsPage } from "./components/CmsPage";
 import { Footer } from "./components/Footer";
 import { LegalPage } from "./components/LegalPage";
 import { TariffsPage } from "./components/TariffsPage";
@@ -30,6 +31,7 @@ function CurrentPage({ path }: { path: string }) {
   if (path.startsWith("/cabinet")) return <CabinetPage />;
   if (path.startsWith("/tariffs")) return <TariffsPage />;
   if (path.startsWith("/admin")) return <AdminPage />;
+  if (path.startsWith("/cms")) return <CmsPage />;
   return <App />;
 }
 

@@ -5,7 +5,10 @@ import type {
   AuthResult,
   ChatReply,
   CheckoutInit,
+  CmsPreview,
   ConfirmResult,
+  ContentItem,
+  ContentVersion,
   JournalAnalysis,
   JournalEntry,
   PaymentEntry,
@@ -189,6 +192,21 @@ const realApi = {
     request<AdminUser>("POST", `/admin/users/${id}/set-free`, {}),
   adminRefund: (id: number, paymentId: number) =>
     request<PaymentEntry>("POST", `/admin/users/${id}/refund/${paymentId}`, {}),
+
+  // CMS Тани (роль editor/admin): настройка ответов ИИ.
+  cmsList: () => request<ContentItem[]>("GET", "/cms/content"),
+  cmsSave: (key: string, value: string) =>
+    request<{ ok: boolean }>("PUT", `/cms/content/${key}`, { value }),
+  cmsPublish: (key: string) =>
+    request<{ ok: boolean }>("POST", `/cms/content/${key}/publish`, {}),
+  cmsRevert: (key: string) =>
+    request<{ ok: boolean }>("POST", `/cms/content/${key}/revert`, {}),
+  cmsVersions: (key: string) =>
+    request<ContentVersion[]>("GET", `/cms/content/${key}/versions`),
+  cmsRestore: (key: string, versionId: number) =>
+    request<{ ok: boolean }>("POST", `/cms/content/${key}/restore/${versionId}`, {}),
+  cmsPreview: (question: string) =>
+    request<CmsPreview>("POST", "/cms/preview", { question }),
 };
 
 export const DEMO = import.meta.env.VITE_DEMO === "1";

@@ -184,6 +184,29 @@ export interface AdminMetrics {
   revenue_total: number;
 }
 
+export interface ContentItem {
+  key: string;
+  group: string;
+  label: string;
+  multiline: boolean;
+  default: string;
+  published: string | null;
+  draft: string | null;
+  effective: string;
+  dirty: boolean;
+}
+
+export interface ContentVersion {
+  id: number;
+  value: string;
+  created_at: string | null;
+}
+
+export interface CmsPreview {
+  interpretation_prompt: string;
+  question_check_prompt: string;
+}
+
 export interface ReadingRequestBody {
   mode: Mode;
   question: string;

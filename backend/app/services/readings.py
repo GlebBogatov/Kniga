@@ -7,7 +7,7 @@ from .. import schemas
 from ..config import settings
 from ..data.question_presets import PRESET_BY_SLUG
 from ..models import ChatMessage, Reading
-from . import prompts
+from . import content, prompts
 from .divination import coins_symbol, hexagram_symbol, trigram_symbol
 from .llm import LLMCallError, LLMService, LLMUnavailable, get_llm_service
 
@@ -61,7 +61,8 @@ def create_reading(
         preset_focus = preset_focus_for(req)
 
     prompt = prompts.build_interpretation_prompt(
-        symbol, req.question, style=req.style, preset_focus=preset_focus
+        symbol, req.question, style=req.style, preset_focus=preset_focus,
+        content=content.effective_map(db),
     )
     schema = (
         schemas.COINS_INTERPRETATION_SCHEMA if is_coins else schemas.INTERPRETATION_SCHEMA
@@ -158,7 +159,8 @@ def stream_reading(
     parts: list[str] = []
     try:
         stream_prompt = prompts.prompt_interpretation_stream(
-            symbol, req.question, style=req.style, preset_focus=preset_focus_for(req)
+            symbol, req.question, style=req.style, preset_focus=preset_focus_for(req),
+            content=content.effective_map(db),
         )
         for chunk in llm.stream_text(
             stream_prompt, model=settings.model_interpretation, max_tokens=700

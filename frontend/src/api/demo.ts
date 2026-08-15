@@ -8,7 +8,10 @@ import type {
   AuthResult,
   ChatReply,
   CheckoutInit,
+  CmsPreview,
   ConfirmResult,
+  ContentItem,
+  ContentVersion,
   DivinationSymbol,
   JournalAnalysis,
   JournalEntry,
@@ -82,6 +85,43 @@ function demoMetrics(): AdminMetrics {
     payments_succeeded: demoAdmin.flatMap((u) => u.payments ?? []).filter((p) => p.status === "succeeded").length,
     revenue_total: revenue,
   };
+}
+
+// Демо-контент CMS (мирроринг backend/data/content.py).
+interface DemoContentField {
+  key: string;
+  group: string;
+  label: string;
+  multiline: boolean;
+  default: string;
+}
+const DEMO_CONTENT_REGISTRY: DemoContentField[] = [
+  { key: "safety", group: "Безопасность", label: "Блок безопасности (добавляется во все ответы ИИ)", multiline: true, default: "Важно: не давай медицинских, юридических или финансовых предписаний; не предсказывай смерть, диагнозы и исход болезни. Если вопрос касается здоровья, самоповреждения или острого кризиса — мягко порекомендуй обратиться к профильному специалисту вместо толкования." },
+  { key: "tone", group: "Тон толкования", label: "Дополнительное указание о тоне (необязательно)", multiline: true, default: "" },
+  { key: "qc_good", group: "Проверка вопроса", label: "Признак хорошего вопроса", multiline: false, default: "конкретный, про решение или ситуацию" },
+  { key: "qc_good_example", group: "Проверка вопроса", label: "Пример хорошего вопроса", multiline: false, default: "остаться в компании или искать работу в марте" },
+  { key: "qc_vague", group: "Проверка вопроса", label: "Признак расплывчатого вопроса", multiline: false, default: "размытый, без конкретной ситуации или решения" },
+  { key: "qc_vague_example", group: "Проверка вопроса", label: "Пример расплывчатого вопроса", multiline: false, default: "какая у меня судьба" },
+  { key: "qc_hint", group: "Проверка вопроса", label: "Как писать подсказку при расплывчатом вопросе", multiline: false, default: "1–2 предложения, как переформулировать вопрос конкретнее" },
+  { key: "qc_crisis", group: "Проверка вопроса", label: "Что считать кризисным вопросом", multiline: true, default: "о самоповреждении, суициде, остром психологическом кризисе" },
+];
+const demoContentState: Record<string, { draft: string | null; published: string | null }> =
+  Object.fromEntries(DEMO_CONTENT_REGISTRY.map((f) => [f.key, { draft: null, published: null }]));
+const demoContentVersions: Record<string, ContentVersion[]> = {};
+let demoVersionId = 1;
+
+function demoContentItems(): ContentItem[] {
+  return DEMO_CONTENT_REGISTRY.map((f) => {
+    const st = demoContentState[f.key];
+    const effective = st.published ?? f.default;
+    return {
+      ...f,
+      published: st.published,
+      draft: st.draft,
+      effective,
+      dirty: st.draft !== null && st.draft !== effective,
+    };
+  });
 }
 
 // Демо-лимит бесплатного тарифа: чтобы показать путь «лимит → оплата → премиум».
@@ -370,6 +410,63 @@ export const demoApi = {
     const p = (u.payments ?? []).find((x) => x.id === paymentId)!;
     p.status = "refunded";
     return p;
+  },
+
+  // --- CMS (заглушка) ---
+  cmsList: async (): Promise<ContentItem[]> => demoContentItems(),
+
+  cmsSave: async (key: string, value: string): Promise<{ ok: boolean }> => {
+    if (demoContentState[key]) demoContentState[key].draft = value;
+    return { ok: true };
+  },
+
+  cmsPublish: async (key: string): Promise<{ ok: boolean }> => {
+    const st = demoContentState[key];
+    const field = DEMO_CONTENT_REGISTRY.find((f) => f.key === key)!;
+    const value = st.draft ?? field.default;
+    st.published = value;
+    (demoContentVersions[key] ??= []).unshift({
+      id: demoVersionId++,
+      value,
+      created_at: new Date().toISOString(),
+    });
+    return { ok: true };
+  },
+
+  cmsRevert: async (key: string): Promise<{ ok: boolean }> => {
+    if (demoContentState[key]) demoContentState[key].draft = null;
+    return { ok: true };
+  },
+
+  cmsVersions: async (key: string): Promise<ContentVersion[]> =>
+    demoContentVersions[key] ?? [],
+
+  cmsRestore: async (key: string, versionId: number): Promise<{ ok: boolean }> => {
+    const v = (demoContentVersions[key] ?? []).find((x) => x.id === versionId);
+    if (v && demoContentState[key]) demoContentState[key].draft = v.value;
+    return { ok: true };
+  },
+
+  cmsPreview: async (question: string): Promise<CmsPreview> => {
+    const d = (k: string) => {
+      const st = demoContentState[k];
+      const f = DEMO_CONTENT_REGISTRY.find((x) => x.key === k)!;
+      return st.draft ?? st.published ?? f.default;
+    };
+    return {
+      interpretation_prompt:
+        "Ты — знаток «Книги перемен» (И Цзин), толкующий гадание.\n" +
+        "Выпавшая триграмма: Цянь (乾), образ — Небо.\n" +
+        `Вопрос гадающего: «${question}»\n` +
+        (d("tone") ? d("tone") + "\n" : "") +
+        d("safety") +
+        "\n(демо-предпросмотр собранной инструкции для ИИ)",
+      question_check_prompt:
+        `Оцени вопрос для гадания И-Цзин: «${question}».\n` +
+        `Хороший вопрос — ${d("qc_good")} («${d("qc_good_example")}»), ` +
+        `а не ${d("qc_vague")} («${d("qc_vague_example")}»). ` +
+        `Кризисный — ${d("qc_crisis")}.`,
+    };
   },
 };
 

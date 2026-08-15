@@ -114,6 +114,30 @@ class UserSession(Base):
     user: Mapped["User"] = relationship()
 
 
+class ContentItem(Base):
+    """Редактируемый контент (CMS Тани): черновик и опубликованное значение."""
+
+    __tablename__ = "content_items"
+
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    draft: Mapped[str | None] = mapped_column(Text, nullable=True)
+    published: Mapped[str | None] = mapped_column(Text, nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(), onupdate=func.now()
+    )
+
+
+class ContentVersion(Base):
+    """Снимок опубликованного значения (для отката)."""
+
+    __tablename__ = "content_versions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    key: Mapped[str] = mapped_column(String(64), index=True)
+    value: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
 class Payment(Base):
     __tablename__ = "payments"
 

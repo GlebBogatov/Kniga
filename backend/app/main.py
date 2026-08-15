@@ -10,6 +10,7 @@ from .db import init_db
 from .routers import (
     admin,
     auth,
+    cms,
     divination,
     health,
     journal,
@@ -47,6 +48,7 @@ app.include_router(health.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
 app.include_router(payments.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
+app.include_router(cms.router, prefix="/api")
 app.include_router(divination.router, prefix="/api")
 app.include_router(question.router, prefix="/api")
 app.include_router(journal.router, prefix="/api")

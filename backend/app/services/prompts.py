@@ -3,14 +3,12 @@
 Каркас: рабочие формулировки, которые контент-редактор (Таня) шлифует позже.
 В system-часть каждого промпта включён блок безопасности (SAFETY).
 """
+from ..data.content import CONTENT_DEFAULTS, SAFETY_DEFAULT
 from ..data.question_check import QUESTION_CHECK_CRITERIA
 
-SAFETY = (
-    "Важно: не давай медицинских, юридических или финансовых предписаний; "
-    "не предсказывай смерть, диагнозы и исход болезни. Если вопрос касается "
-    "здоровья, самоповреждения или острого кризиса — мягко порекомендуй "
-    "обратиться к профильному специалисту вместо толкования."
-)
+# Дефолт блока безопасности; при наличии опубликованного значения (CMS Тани)
+# подставляется оно — см. content-параметр в билдерах.
+SAFETY = SAFETY_DEFAULT
 
 _STYLE = {
     "classic": "Пиши архаичным, образным слогом, близким к классическому тексту.",
@@ -19,26 +17,34 @@ _STYLE = {
 }
 
 
-def _base_rules(style: str | None, preset_focus: str | None) -> str:
+def _c(content: dict | None, key: str) -> str:
+    """Значение контента: из CMS (content) либо дефолт из реестра."""
+    if content and content.get(key) is not None:
+        return content[key]
+    return CONTENT_DEFAULTS.get(key, "")
+
+
+def _base_rules(style: str | None, preset_focus: str | None, content: dict | None = None) -> str:
     parts = [
         "Составь толкование строго применительно к этому вопросу. Пиши по-русски, "
         "спокойным, образным, но конкретным языком, без эзотерического тумана. "
         "Обращайся на «вы».",
         _STYLE.get(style or "", ""),
+        _c(content, "tone"),
         f"Дополнительный фокус разбора: {preset_focus}" if preset_focus else "",
-        SAFETY,
+        _c(content, "safety"),
     ]
     return "\n".join(p for p in parts if p)
 
 
-def prompt_trigram(symbol: dict, question: str, *, style=None, preset_focus=None) -> str:
+def prompt_trigram(symbol: dict, question: str, *, style=None, preset_focus=None, content=None) -> str:
     return (
         "Ты — знаток «Книги перемен» (И Цзин), толкующий гадание.\n\n"
         f"Выпавшая триграмма: {symbol['name']} ({symbol['hanzi']}), образ — "
         f"{symbol['image']}, действие — {symbol['action']}.\n"
         f"Семейный образ: {symbol['family']}. Стихия: {symbol['element']}.\n\n"
         f"Вопрос гадающего: «{question}»\n\n"
-        f"{_base_rules(style, preset_focus)}\n\n"
+        f"{_base_rules(style, preset_focus, content)}\n\n"
         "Ответь на русском объектом с полями: interpretation (3–5 предложений о "
         "ситуации из вопроса), advice (1–2 предложения — конкретный совет), "
         "caution (1 предложение — от чего предостерегает символ), next_step "
@@ -46,7 +52,7 @@ def prompt_trigram(symbol: dict, question: str, *, style=None, preset_focus=None
     )
 
 
-def prompt_hexagram(symbol: dict, question: str, *, style=None, preset_focus=None) -> str:
+def prompt_hexagram(symbol: dict, question: str, *, style=None, preset_focus=None, content=None) -> str:
     lo, up = symbol["lower"], symbol["upper"]
     return (
         "Ты — знаток «Книги перемен» (И Цзин), толкующий гадание.\n\n"
@@ -57,14 +63,14 @@ def prompt_hexagram(symbol: dict, question: str, *, style=None, preset_focus=Non
         "Опирайся на классическое суждение и образ гексаграммы (традиция "
         "Вильгельма и Щуцкого) и на взаимодействие триграмм.\n\n"
         f"Вопрос гадающего: «{question}»\n\n"
-        f"{_base_rules(style, preset_focus)}\n\n"
+        f"{_base_rules(style, preset_focus, content)}\n\n"
         "Ответь на русском объектом с полями: interpretation (4–6 предложений, "
         "включая взаимодействие верхней и нижней триграмм), advice, caution, "
         "next_step."
     )
 
 
-def prompt_coins(symbol: dict, question: str, *, style=None, preset_focus=None) -> str:
+def prompt_coins(symbol: dict, question: str, *, style=None, preset_focus=None, content=None) -> str:
     lo, up = symbol["lower"], symbol["upper"]
     changing = symbol.get("changing_lines") or []
     sec = symbol.get("secondary")
@@ -82,7 +88,7 @@ def prompt_coins(symbol: dict, question: str, *, style=None, preset_focus=None) 
         f"Верхняя: {up['name']} ({up['image']}).\n"
         f"Изменяющиеся линии (снизу вверх, 1–6): {changing or 'нет'}. {sec_line}\n\n"
         f"Вопрос гадающего: «{question}»\n\n"
-        f"{_base_rules(style, preset_focus)}\n\n"
+        f"{_base_rules(style, preset_focus, content)}\n\n"
         "Ответь на русском объектом с полями: interpretation (4–6 предложений: "
         "первичная гексаграмма — ситуация сейчас, изменяющиеся линии — точки "
         "перехода, вторичная — куда всё движется), advice, caution, next_step, "
@@ -91,12 +97,12 @@ def prompt_coins(symbol: dict, question: str, *, style=None, preset_focus=None) 
     )
 
 
-def build_interpretation_prompt(symbol: dict, question: str, *, style=None, preset_focus=None) -> str:
+def build_interpretation_prompt(symbol: dict, question: str, *, style=None, preset_focus=None, content=None) -> str:
     if symbol["kind"] == "trigram":
-        return prompt_trigram(symbol, question, style=style, preset_focus=preset_focus)
+        return prompt_trigram(symbol, question, style=style, preset_focus=preset_focus, content=content)
     if "changing_lines" in symbol:  # режим монет
-        return prompt_coins(symbol, question, style=style, preset_focus=preset_focus)
-    return prompt_hexagram(symbol, question, style=style, preset_focus=preset_focus)
+        return prompt_coins(symbol, question, style=style, preset_focus=preset_focus, content=content)
+    return prompt_hexagram(symbol, question, style=style, preset_focus=preset_focus, content=content)
 
 
 def _symbol_line(symbol: dict) -> str:
@@ -115,13 +121,13 @@ def _symbol_line(symbol: dict) -> str:
     return line
 
 
-def prompt_interpretation_stream(symbol: dict, question: str, *, style=None, preset_focus=None) -> str:
+def prompt_interpretation_stream(symbol: dict, question: str, *, style=None, preset_focus=None, content=None) -> str:
     """Только прозаический текст толкования (для потоковой передачи)."""
     return (
         "Ты — знаток «Книги перемен» (И Цзин), толкующий гадание.\n"
         f"{_symbol_line(symbol)}\n"
         f"Вопрос гадающего: «{question}»\n"
-        f"{_base_rules(style, preset_focus)}\n"
+        f"{_base_rules(style, preset_focus, content)}\n"
         "Дай ТОЛЬКО связный текст толкования (4–6 предложений) применительно к "
         "вопросу. Без списков, без заголовков, без JSON."
     )
@@ -157,18 +163,25 @@ def chat_system_prompt(symbol_label: str, question: str, interpretation: str, ad
     )
 
 
-def question_check_prompt(question: str) -> str:
-    # Критерии («что такое хороший/расплывчатый/кризисный вопрос») вынесены в
-    # data/question_check.py — их редактирует Таня, не трогая этот код.
+def question_check_prompt(question: str, content: dict | None = None) -> str:
+    # Критерии («что такое хороший/расплывчатый/кризисный вопрос») редактируются
+    # Таней через CMS (ключи qc_*); при отсутствии публикации — дефолты реестра.
+    def g(key: str, fallback: str) -> str:
+        if content and content.get(key) is not None:
+            return content[key]
+        return fallback
+
     qc = QUESTION_CHECK_CRITERIA
     return (
         f"Оцени вопрос для гадания И-Цзин: «{question}».\n"
-        f"Хороший вопрос — {qc['good']} («{qc['good_example']}»), "
-        f"а не {qc['vague']} («{qc['vague_example']}»). "
+        f"Хороший вопрос — {g('qc_good', qc['good'])} "
+        f"(«{g('qc_good_example', qc['good_example'])}»), "
+        f"а не {g('qc_vague', qc['vague'])} "
+        f"(«{g('qc_vague_example', qc['vague_example'])}»). "
         f"Отдельно определи, не является ли вопрос кризисным "
-        f"({qc['crisis']}).\n"
+        f"({g('qc_crisis', qc['crisis'])}).\n"
         'Ответь объектом с полями: quality (одно из "good", "vague", "yes_no_ok"), '
-        f"hint (если vague — {qc['hint_instruction']}; иначе пустая строка), "
+        f"hint (если vague — {g('qc_hint', qc['hint_instruction'])}; иначе пустая строка), "
         "crisis (true, если вопрос кризисный, иначе false)."
     )
 

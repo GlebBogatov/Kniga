@@ -31,6 +31,11 @@ export function AuthBar() {
               {copy.auth.admin}
             </a>
           )}
+          {(user.role === "editor" || user.role === "admin" || DEMO) && (
+            <a className="auth-admin" href="#/cms">
+              {copy.auth.cms}
+            </a>
+          )}
           <a className="auth-cabinet" href="#/cabinet">
             ☾ {user.name ?? copy.auth.cabinet}
           </a>
