@@ -865,6 +865,210 @@
   }
 }
 
+/* Верхняя панель с входом/кабинетом */
+.top-strip {
+  position: relative;
+  z-index: 2;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0.6rem 1.25rem 0;
+  display: flex;
+  justify-content: flex-end;
+}
+.auth-bar {
+  font-size: 0.9rem;
+}
+.auth-user {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.auth-cabinet {
+  color: var(--cream);
+  text-decoration: none;
+  font-family: var(--display);
+  font-size: 1.05rem;
+}
+.auth-cabinet:hover {
+  color: var(--gold-2);
+}
+.auth-enter,
+.auth-link {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--cream);
+  border-radius: 999px;
+  padding: 0.35rem 1rem;
+  cursor: pointer;
+  font: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+.auth-link {
+  border-color: var(--border-soft);
+}
+.auth-enter:hover,
+.auth-link:hover {
+  border-color: var(--gold);
+  background: rgba(203, 171, 106, 0.1);
+}
+
+/* Модалка входа */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(10, 4, 24, 0.66);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal {
+  width: min(420px, 100%);
+  background: linear-gradient(180deg, rgba(44, 26, 78, 0.96), rgba(28, 16, 54, 0.98));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 24px 60px rgba(10, 4, 24, 0.6);
+  text-align: center;
+}
+.modal h3 {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  margin: 0 0 0.4rem;
+}
+.modal-note {
+  font-size: 0.85rem;
+  margin: 0 0 1.1rem;
+}
+.social-btn {
+  display: block;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.6rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1rem;
+  color: #fff;
+  transition: filter 0.15s;
+}
+.social-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.social-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.social-btn.vk {
+  background: #07f;
+}
+.social-btn.yandex {
+  background: #fc3f1d;
+}
+.modal-close {
+  margin-top: 0.4rem;
+  background: transparent;
+  border: none;
+  color: var(--cream-dim);
+  cursor: pointer;
+  font: inherit;
+}
+.modal-close:hover {
+  color: var(--gold-2);
+}
+
+/* Личный кабинет */
+.cabinet .legal-title {
+  margin-bottom: 1.2rem;
+}
+.cab-login {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 320px;
+  margin: 1rem 0;
+}
+.cab-card {
+  background: rgba(28, 16, 54, 0.55);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 1.2rem 1.3rem;
+  margin-bottom: 1.1rem;
+}
+.cab-card h2 {
+  font-family: var(--heading);
+  font-size: 1.15rem;
+  color: var(--gold-2);
+  margin: 0 0 0.9rem;
+}
+.cab-field {
+  display: block;
+  margin-bottom: 0.7rem;
+}
+.cab-field span {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--cream-dim);
+  margin-bottom: 0.25rem;
+}
+.cab-field input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: rgba(20, 10, 41, 0.55);
+  color: var(--cream);
+  font: inherit;
+}
+.cab-field input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.cab-provider {
+  font-size: 0.85rem;
+}
+.cab-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+.plan-badge {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  color: var(--cream-dim);
+  font-size: 0.9rem;
+}
+.plan-badge.premium {
+  border-color: var(--gold);
+  color: #26163f;
+  background: linear-gradient(180deg, #f2dfa6, var(--gold));
+}
+.cab-plan {
+  margin: 0 0 0.4rem;
+}
+.cab-danger {
+  border-color: rgba(193, 68, 46, 0.4);
+}
+.btn-danger {
+  padding: 0.5rem 1.1rem;
+  background: transparent;
+  border: 1px solid #c1442e;
+  color: #e88;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  transition: background 0.15s;
+}
+.btn-danger:hover {
+  background: rgba(193, 68, 46, 0.16);
+}
+
 /* Футер с юр-ссылками */
 .site-footer {
   position: relative;

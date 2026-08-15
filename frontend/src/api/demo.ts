@@ -2,18 +2,47 @@
 // толкования — заглушки, без обращения к ИИ. Включается флагом VITE_DEMO=1.
 import { coinsPreview, hexagramPreview, trigramPreview } from "../data/symbol";
 import type {
+  ApiError,
+  AuthResult,
   ChatReply,
   DivinationSymbol,
   JournalAnalysis,
   JournalEntry,
   Preset,
+  ProfilePatch,
   QuestionCheck,
   ReadingRequestBody,
   ReadingResponse,
   StreamHandlers,
+  User,
 } from "../types";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+// --- Демо-авторизация (без бэкенда): пользователь хранится в localStorage. ---
+const DEMO_USER_KEY = "kn_demo_user";
+
+function readDemoUser(): User | null {
+  try {
+    const raw = localStorage.getItem(DEMO_USER_KEY);
+    return raw ? (JSON.parse(raw) as User) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeDemoUser(user: User | null): void {
+  try {
+    if (user) localStorage.setItem(DEMO_USER_KEY, JSON.stringify(user));
+    else localStorage.removeItem(DEMO_USER_KEY);
+  } catch {
+    /* нет localStorage — игнорируем */
+  }
+}
+
+function providerLabel(p: string): string {
+  return p === "vk" ? "VK" : p === "yandex" ? "Яндекс" : "гость";
+}
 
 const BLOCKS = {
   interpretation:
@@ -110,6 +139,57 @@ export const demoApi = {
   },
 
   getPresets: async (): Promise<Preset[]> => PRESETS,
+
+  // --- Авторизация (заглушка) ---
+  devLogin: async (body: {
+    provider: string;
+    provider_user_id: string;
+    email?: string;
+    name?: string;
+  }): Promise<AuthResult> => {
+    await sleep(300);
+    const user: User = {
+      id: 1,
+      provider: body.provider,
+      email: body.email ?? `${body.provider}@example.com`,
+      name: body.name ?? `Гость ${providerLabel(body.provider)}`,
+      birth_date: null,
+      role: "user",
+      subscription: {
+        plan: "free",
+        status: "active",
+        current_period_end: null,
+        auto_renew: false,
+      },
+    };
+    writeDemoUser(user);
+    return { token: "demo-token", user };
+  },
+
+  me: async (): Promise<User> => {
+    const user = readDemoUser();
+    if (!user) throw { status: 401, detail: "Требуется вход." } as ApiError;
+    return user;
+  },
+
+  updateProfile: async (patch: ProfilePatch): Promise<User> => {
+    const user = readDemoUser();
+    if (!user) throw { status: 401, detail: "Требуется вход." } as ApiError;
+    if (patch.name !== undefined) user.name = patch.name;
+    if (patch.email !== undefined) user.email = patch.email;
+    writeDemoUser(user);
+    return user;
+  },
+
+  logout: async (): Promise<{ ok: boolean }> => {
+    writeDemoUser(null);
+    return { ok: true };
+  },
+
+  deleteAccount: async (): Promise<{ deleted: boolean }> => {
+    writeDemoUser(null);
+    return { deleted: true };
+  },
 };
 
 const demoChatUsed: Record<number, number> = {};

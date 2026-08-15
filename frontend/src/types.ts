@@ -101,6 +101,35 @@ export interface ApiError {
   detail: string;
 }
 
+export type Provider = "vk" | "yandex";
+
+export interface Subscription {
+  plan: "free" | "premium";
+  status: "active" | "canceled" | "expired";
+  current_period_end: string | null;
+  auto_renew: boolean;
+}
+
+export interface User {
+  id: number;
+  provider: string;
+  email: string | null;
+  name: string | null;
+  birth_date: string | null;
+  role: "user" | "admin" | "editor";
+  subscription: Subscription;
+}
+
+export interface AuthResult {
+  token: string;
+  user: User;
+}
+
+export interface ProfilePatch {
+  name?: string;
+  email?: string;
+}
+
 export interface ReadingRequestBody {
   mode: Mode;
   question: string;
