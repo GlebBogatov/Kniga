@@ -59,7 +59,7 @@ class AnthropicProvider:
             anthropic.DefaultHttpxClient(proxy=proxy_url) if proxy_url else None
         )
         self._client = anthropic.Anthropic(
-            api_key=api_key, base_url=base_url, http_client=http_client, timeout=60
+            api_key=api_key, base_url=base_url, http_client=http_client, timeout=120
         )
 
     @staticmethod
@@ -127,7 +127,9 @@ class OpenAICompatibleProvider:
         self._api_key = api_key
         self._url = base_url.rstrip("/") + "/chat/completions"
         self._prefix = model_prefix
-        self._http = httpx.Client(proxy=proxy_url, timeout=60) if proxy_url else httpx.Client(timeout=60)
+        # 120с: тяжёлые ответы (монеты с изменяющимися линиями) на медленном
+        # хостинге через шлюз могут генерироваться дольше 60с.
+        self._http = httpx.Client(proxy=proxy_url, timeout=120) if proxy_url else httpx.Client(timeout=120)
 
     def _model(self, model: str) -> str:
         return model if "/" in model else f"{self._prefix}{model}"

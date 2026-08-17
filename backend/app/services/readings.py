@@ -64,7 +64,8 @@ def create_reading(
         schemas.COINS_INTERPRETATION_SCHEMA if is_coins else schemas.INTERPRETATION_SCHEMA
     )
     data = llm.call_structured(
-        prompt, schema, model=settings.model_interpretation, max_tokens=1000
+        prompt, schema, model=settings.model_interpretation,
+        max_tokens=1600 if is_coins else 1000,
     )
 
     reading = Reading(
@@ -166,9 +167,12 @@ def stream_reading(
 
         interpretation = "".join(parts).strip()
         schema = schemas.COINS_TRAILER_SCHEMA if is_coins else schemas.TRAILER_SCHEMA
+        # монеты: advice/caution/next_step + до 6 комментариев к линиям — нужно
+        # больше токенов, иначе JSON обрежется.
         trailer = llm.call_structured(
             prompts.prompt_trailer(symbol, req.question, interpretation, style=req.style),
-            schema, model=settings.model_interpretation, max_tokens=400,
+            schema, model=settings.model_interpretation,
+            max_tokens=900 if is_coins else 400,
         )
     except (LLMUnavailable, LLMCallError):
         yield _sse("error", {"detail": "Толкование временно недоступно."})
