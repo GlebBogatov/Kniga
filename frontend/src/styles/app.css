@@ -268,13 +268,8 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  /* без видео — мягкая CSS-аура */
-  .hero-bg {
-    display: none;
-  }
-  .hero-aura {
-    display: block;
-  }
+  /* Фоновое видео показываем и при Reduce Motion (осознанный выбор владельца:
+     это спокойное декоративное свечение, не резкое движение). */
   .hero-cta {
     animation: cta-soft 2s ease-in-out infinite;
   }

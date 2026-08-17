@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { DEMO, api } from "./api/client";
 import { CoinsInput } from "./components/CoinsInput";
@@ -30,6 +30,16 @@ export default function App() {
 
   const [check, setCheck] = useState<QuestionCheck | null>(null);
   const [checking, setChecking] = useState(false);
+
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
+  // iOS Safari надёжно автозапускает только видео с DOM-свойством muted (атрибут
+  // из React иногда не срабатывает) — выставляем его вручную и запускаем.
+  useEffect(() => {
+    const v = heroVideoRef.current;
+    if (!v) return;
+    v.muted = true;
+    v.play().catch(() => {});
+  }, []);
 
   const [preview, setPreview] = useState<DivinationSymbol | null>(null);
   const [result, setResult] = useState<ReadingResponse | null>(null);
@@ -151,6 +161,7 @@ export default function App() {
       <header className="app-header">
         <div className="hero-aura" aria-hidden="true" />
         <video
+          ref={heroVideoRef}
           className="hero-bg"
           aria-hidden="true"
           autoPlay
