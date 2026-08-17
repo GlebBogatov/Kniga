@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Инструкция для Тани — настройка ответов ИИ</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm 16mm;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Segoe UI", "PT Sans", Arial, sans-serif;
+    color: #22242b;
+    font-size: 11pt;
+    line-height: 1.5;
+    margin: 0;
+  }
+  h1, h2, h3 { font-family: Georgia, "PT Serif", "Times New Roman", serif; color: #2a2140; line-height: 1.2; }
+  h1 { font-size: 26pt; margin: 0 0 4pt; }
+  h2 {
+    font-size: 16pt;
+    margin: 22pt 0 8pt;
+    padding-bottom: 5pt;
+    border-bottom: 2px solid #cbb8e2;
+    break-after: avoid;
+  }
+  h3 { font-size: 12.5pt; margin: 14pt 0 4pt; color: #4b3b73; break-after: avoid; }
+  p { margin: 6pt 0; }
+  a { color: #6b4bb0; text-decoration: none; }
+  .lead { font-size: 12pt; color: #4a4d59; }
+  .muted { color: #6a6d78; }
+  code, .kbd {
+    font-family: "Consolas", "Courier New", monospace;
+    background: #eee7f7;
+    color: #3d2a63;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 9.7pt;
+  }
+  .btn {
+    display: inline-block;
+    background: #efe7fb;
+    border: 1px solid #c9b6ec;
+    color: #3d2a63;
+    border-radius: 6px;
+    padding: 1px 8px;
+    font-size: 9.7pt;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Обложка */
+  .cover {
+    border: 1px solid #d8ccee;
+    border-left: 6px solid #7c5cc4;
+    border-radius: 12px;
+    padding: 22pt 24pt;
+    background: linear-gradient(135deg, #f7f2ff 0%, #fdfbff 100%);
+    margin-bottom: 12pt;
+  }
+  .cover .eyebrow { text-transform: uppercase; letter-spacing: 2px; font-size: 9pt; color: #8a72c0; font-weight: 700; margin: 0 0 6pt; }
+  .cover .sub { font-size: 12pt; color: #4a4d59; margin-top: 8pt; }
+  .cover .meta { margin-top: 14pt; font-size: 9.5pt; color: #7a7d88; }
+
+  /* Блоки-выноски */
+  .callout {
+    border-radius: 10px;
+    padding: 11pt 14pt;
+    margin: 12pt 0;
+    break-inside: avoid;
+    font-size: 10.5pt;
+  }
+  .callout .t { font-weight: 700; display: block; margin-bottom: 3pt; }
+  .callout.key { background: #f0ecfb; border: 1px solid #cdbdee; }
+  .callout.warn { background: #fff4e8; border: 1px solid #f0cfa0; }
+  .callout.ok   { background: #eaf7ee; border: 1px solid #b6e0c1; }
+  .callout.info { background: #eef4fb; border: 1px solid #bcd3ee; }
+
+  /* Таблицы полей */
+  table { width: 100%; border-collapse: collapse; margin: 8pt 0; font-size: 10pt; break-inside: auto; }
+  thead th {
+    background: #4b3b73; color: #fff; text-align: left;
+    padding: 6pt 8pt; font-weight: 600; font-size: 9.5pt;
+  }
+  tbody td { padding: 6pt 8pt; border-bottom: 1px solid #e4dcf0; vertical-align: top; }
+  tbody tr:nth-child(even) td { background: #faf7ff; }
+  tr { break-inside: avoid; }
+  td .field { font-family: "Consolas", monospace; font-size: 9pt; color: #6a5a90; display: block; margin-top: 2pt; }
+
+  /* Шаги */
+  ol.steps { counter-reset: step; list-style: none; padding-left: 0; margin: 8pt 0; }
+  ol.steps > li {
+    position: relative;
+    padding: 4pt 0 8pt 30pt;
+    break-inside: avoid;
+  }
+  ol.steps > li::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute; left: 0; top: 2pt;
+    width: 20pt; height: 20pt;
+    background: #7c5cc4; color: #fff;
+    border-radius: 50%;
+    text-align: center; line-height: 20pt;
+    font-weight: 700; font-size: 10pt;
+    font-family: "Segoe UI", sans-serif;
+  }
+  .recipe {
+    border: 1px solid #e0d6f0;
+    border-radius: 10px;
+    padding: 10pt 14pt 4pt;
+    margin: 10pt 0;
+    break-inside: avoid;
+  }
+  .recipe h3 { margin-top: 2pt; }
+
+  .flow { display: flex; gap: 6pt; align-items: center; flex-wrap: wrap; margin: 8pt 0; font-size: 10pt; }
+  .flow .node { background: #efe7fb; border: 1px solid #c9b6ec; border-radius: 6px; padding: 4pt 9pt; font-weight: 600; color: #3d2a63; }
+  .flow .arr { color: #9a86c8; font-weight: 700; }
+
+  .section { break-inside: avoid-page; }
+  .pb { break-before: page; }
+  ul.tight { margin: 6pt 0; padding-left: 18pt; }
+  ul.tight li { margin: 3pt 0; }
+  footer.doc { margin-top: 18pt; padding-top: 8pt; border-top: 1px solid #ddd; font-size: 8.5pt; color: #9a9da8; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <p class="eyebrow">Книга перемен · Панель «Контент»</p>
+  <h1>Как настраивать ответы ИИ</h1>
+  <p class="sub">Пошаговая инструкция для контент-редактора. Всё меняется без программиста — вы правите тексты, а сайт сразу начинает отвечать по-новому.</p>
+  <p class="meta">Роль: <b>редактор контента (Таня)</b> · Раздел сайта: <b>«Контент»</b> · Программировать ничего не нужно</p>
+</div>
+
+<p class="lead">Эта инструкция объясняет, <b>что именно</b> вы можете менять в ответах искусственного интеллекта и <b>как</b> это сделать. Ничего сломать нельзя: вы редактируете только тексты-настройки, а перед тем как изменения увидят посетители, вы сами нажимаете «Опубликовать».</p>
+
+<div class="callout info">
+  <span class="t">Коротко о главном</span>
+  ИИ пишет толкования и проверяет вопросы, опираясь на <b>тексты-инструкции</b>. Именно эти тексты вы и редактируете. Есть два раздела: <b>«Настройка ответов»</b> (как ИИ говорит и как оценивает вопрос) и <b>«Готовые вопросы»</b> (кнопки-подсказки на главной).
+</div>
+
+<h2>1. Как войти в панель</h2>
+<div class="section">
+  <ol class="steps">
+    <li>Откройте сайт и добавьте в конце адреса <code>#/enter</code> — получится <code>…onrender.com/#/enter</code>. Это служебная страница входа.</li>
+    <li>Нажмите кнопку <span class="btn">Войти как редактор (Таня → Контент)</span>. Вас сразу перекинет в раздел <b>«Контент»</b>.</li>
+    <li>В дальнейшем, когда вы уже вошли, в верхнем меню сайта есть пункт <span class="btn">Контент</span> — он ведёт туда же.</li>
+  </ol>
+  <div class="callout warn">
+    <span class="t">Пока это временный вход</span>
+    Настоящий вход через VK ID / Яндекс ID ещё не подключён, поэтому используется служебная страница-заглушка. Обычные посетители её не видят. Когда подключат нормальный вход, Глеб выдаст вам постоянный доступ — сами действия в панели не изменятся.
+  </div>
+</div>
+
+<h2>2. Главный принцип: черновик → публикация</h2>
+<div class="section">
+  <p>Каждое изменение проходит два шага. Это защищает сайт: посетители видят новое только после того, как вы это подтвердите.</p>
+  <div class="flow">
+    <span class="node">Вы меняете текст</span>
+    <span class="arr">→</span>
+    <span class="node">Сохранить черновик</span>
+    <span class="arr">→</span>
+    <span class="node">Опубликовать</span>
+    <span class="arr">→</span>
+    <span class="node">Посетители видят новое</span>
+  </div>
+  <ul class="tight">
+    <li><span class="btn">Сохранить черновик</span> — запоминает вашу правку, но <b>посетители её ещё не видят</b>. Рядом появится пометка <span class="muted">«черновик не опубликован»</span>.</li>
+    <li><span class="btn">Опубликовать</span> — вводит правку в дело. С этого момента ИИ отвечает по-новому. Публикация ещё и сохраняется в «Версии» (см. ниже), чтобы можно было откатиться.</li>
+    <li><span class="btn">Сбросить</span> — выкидывает несохранённый/неопубликованный черновик и возвращает то, что сейчас опубликовано.</li>
+    <li><span class="btn">Версии</span> — список всех прошлых публикаций этого поля с датами; кнопкой <span class="btn">Восстановить</span> можно вернуть любую.</li>
+  </ul>
+  <div class="callout key">
+    <span class="t">Запомните одно правило</span>
+    Пока вы не нажали <b>«Опубликовать»</b> — на сайте ничего не поменялось. Если поле никогда не публиковали, работает стандартный текст, заложенный по умолчанию.
+  </div>
+</div>
+
+<h2 class="pb">3. Что можно менять в «Настройке ответов»</h2>
+<div class="section">
+  <p>Раздел разбит на группы. У каждого поля свои четыре кнопки (Сохранить черновик / Опубликовать / Сбросить / Версии).</p>
+
+  <h3>Группа «Безопасность» и «Тон толкования»</h3>
+  <table>
+    <thead><tr><th style="width:34%">Поле</th><th>Что это и на что влияет</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Блок безопасности</b><span class="field">safety</span></td>
+        <td>Добавляется <b>во все ответы ИИ</b>. Задаёт запреты: не давать медицинских / юридических / финансовых предписаний, не предсказывать болезни и исход, при теме здоровья или кризиса — мягко направлять к специалисту. <b>Юридически важный текст</b> — ослаблять не рекомендуется, можно только усиливать/уточнять.</td>
+      </tr>
+      <tr>
+        <td><b>Указание о тоне</b><span class="field">tone</span> · необязательно</td>
+        <td>Дополнительная фраза о том, каким тоном писать толкования (например «пиши теплее, поддерживающе» или «строже и суше»). Пусто по умолчанию. Добавляется к каждому толкованию.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Группа «Проверка вопроса»</h3>
+  <p class="muted" style="margin-top:2pt">Перед гаданием ИИ оценивает вопрос пользователя: хороший он, расплывчатый или кризисный. Эти поля задают, <b>чем ИИ руководствуется</b> при оценке.</p>
+  <table>
+    <thead><tr><th style="width:34%">Поле</th><th>Что это и на что влияет</th></tr></thead>
+    <tbody>
+      <tr><td><b>Признак хорошего вопроса</b><span class="field">qc_good</span></td><td>Описание, какой вопрос считать удачным (сейчас: «конкретный, про решение или ситуацию»).</td></tr>
+      <tr><td><b>Пример хорошего вопроса</b><span class="field">qc_good_example</span></td><td>Образец, который ИИ держит в уме как «хороший». Пример подставляется в подсказку пользователю.</td></tr>
+      <tr><td><b>Признак расплывчатого вопроса</b><span class="field">qc_vague</span></td><td>Описание, что считать слишком общим вопросом (сейчас: «размытый, без конкретной ситуации или решения»).</td></tr>
+      <tr><td><b>Пример расплывчатого вопроса</b><span class="field">qc_vague_example</span></td><td>Образец «плохого» вопроса (сейчас: «какая у меня судьба»).</td></tr>
+      <tr><td><b>Как писать подсказку</b><span class="field">qc_hint</span></td><td>Инструкция, каким должен быть текст-подсказка, если вопрос расплывчатый (например: «1–2 предложения, как переформулировать конкретнее»).</td></tr>
+      <tr><td><b>Что считать кризисом</b><span class="field">qc_crisis</span></td><td>Темы, при которых показывается бережная карточка вместо гадания (самоповреждение, суицид, острый кризис). <b>Относитесь бережно</b> — это про безопасность людей.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout ok">
+    <span class="t">Предпросмотр — ваш друг</span>
+    Внизу раздела есть <b>«Предпросмотр промпта»</b>. Впишите любой вопрос, нажмите <span class="btn">Показать промпт</span> — и увидите, какой именно текст-инструкция уйдёт к ИИ <b>с учётом ваших черновиков</b>. Это бесплатно и не тратит ИИ: удобно проверить формулировку до публикации.
+  </div>
+</div>
+
+<h2>4. Готовые вопросы (пресеты)</h2>
+<div class="section">
+  <p>Это кнопки-подсказки с готовыми формулировками на главной странице. Блок находится внизу раздела «Контент». <b>Важно:</b> пресеты применяются <u>сразу после «Сохранить»</u>, без отдельной публикации.</p>
+  <table>
+    <thead><tr><th style="width:30%">Поле</th><th>Что это</th></tr></thead>
+    <tbody>
+      <tr><td><b>Заголовок (на чипе)</b></td><td>Короткая надпись на кнопке, например «Карьера».</td></tr>
+      <tr><td><b>Подпись</b></td><td>Пояснение помельче под заголовком.</td></tr>
+      <tr><td><b>Тема</b></td><td>Метка-категория (например <code>career</code>, <code>love</code>). Для группировки.</td></tr>
+      <tr><td><b>Показывать</b></td><td>Галочка: показывать пресет на сайте или временно скрыть.</td></tr>
+      <tr><td><b>Текст вопроса</b></td><td>Что подставится в поле ввода, когда пользователь нажмёт на кнопку.</td></tr>
+      <tr><td><b>Фокус разбора для ИИ</b><span class="field">prompt_focus</span></td><td>Скрытая от пользователя подсказка ИИ: на чём сделать акцент в толковании для этой темы.</td></tr>
+    </tbody>
+  </table>
+  <ul class="tight">
+    <li><span class="btn">+ Добавить пресет</span> — создаёт новую заготовку, потом заполните поля и нажмите <span class="btn">Сохранить</span>.</li>
+    <li><span class="btn">Удалить</span> — убирает пресет (спросит подтверждение).</li>
+  </ul>
+</div>
+
+<h2 class="pb">5. Готовые сценарии</h2>
+
+<div class="recipe">
+  <h3>Сделать толкования теплее (или строже)</h3>
+  <ol class="steps">
+    <li>Раздел «Контент» → группа <b>«Тон толкования»</b>.</li>
+    <li>В поле впишите указание, например: <i>«Пиши тепло и поддерживающе, избегай категоричности».</i></li>
+    <li><span class="btn">Сохранить черновик</span> → внизу <span class="btn">Показать промпт</span>, проверьте, что фраза появилась.</li>
+    <li>Довольны — <span class="btn">Опубликовать</span>. Задайте на сайте живой вопрос и убедитесь, что тон изменился.</li>
+  </ol>
+</div>
+
+<div class="recipe">
+  <h3>Изменить, какие вопросы считаются «расплывчатыми», и текст подсказки</h3>
+  <ol class="steps">
+    <li>Группа <b>«Проверка вопроса»</b> → поле <b>«Признак расплывчатого вопроса»</b> и/или <b>«Пример расплывчатого вопроса»</b>.</li>
+    <li>Поле <b>«Как писать подсказку»</b> задаёт, каким тоном ИИ будет предлагать переформулировать вопрос.</li>
+    <li><span class="btn">Сохранить черновик</span> → в «Предпросмотре» впишите нарочно размытый вопрос (например «что меня ждёт»), нажмите <span class="btn">Показать промпт</span>.</li>
+    <li>Если формулировка нравится — <span class="btn">Опубликовать</span>.</li>
+  </ol>
+</div>
+
+<div class="recipe">
+  <h3>Настроить реакцию на кризисные вопросы</h3>
+  <ol class="steps">
+    <li>Группа «Проверка вопроса» → поле <b>«Что считать кризисом»</b>.</li>
+    <li>Опишите темы, при которых нужна бережная карточка вместо гадания.</li>
+    <li><span class="btn">Сохранить черновик</span> → <span class="btn">Опубликовать</span>. Обязательно проверьте на тестовом кризисном вопросе, что показывается бережная карточка, а не обычное толкование.</li>
+  </ol>
+  <div class="callout warn"><span class="t">Осторожно</span> Это про безопасность людей. Лучше сузить «кризис» слишком широко, чем пропустить — но не убирайте тему совсем.</div>
+</div>
+
+<div class="recipe">
+  <h3>Добавить готовый вопрос на главную</h3>
+  <ol class="steps">
+    <li>Внизу раздела «Контент» → блок «Готовые вопросы» → <span class="btn">+ Добавить пресет</span>.</li>
+    <li>Заполните: заголовок, подпись, тему, текст вопроса, фокус разбора; поставьте галочку <b>«Показывать»</b>.</li>
+    <li><span class="btn">Сохранить</span>. Пресет появляется на главной сразу (публиковать отдельно не нужно).</li>
+  </ol>
+</div>
+
+<div class="recipe">
+  <h3>Откатить неудачную правку</h3>
+  <ol class="steps">
+    <li>Ещё <b>не опубликовали</b>? Нажмите <span class="btn">Сбросить</span> — черновик исчезнет, вернётся текущий текст.</li>
+    <li>Уже <b>опубликовали</b> и хотите прежний вариант? Нажмите <span class="btn">Версии</span> → найдите нужную дату → <span class="btn">Восстановить</span> → затем <span class="btn">Опубликовать</span>.</li>
+  </ol>
+</div>
+
+<h2>6. Что вне вашей зоны</h2>
+<div class="section">
+  <p>Чтобы вы понимали границу и не искали лишнего:</p>
+  <ul class="tight">
+    <li><b>Выбор модели ИИ</b> (сейчас Claude Sonnet 5 для толкований и Haiku 4.5 для проверки вопроса), ключи и оплата — это настройки Глеба на сервере, не через панель.</li>
+    <li><b>Тексты плашек на экране</b> (сама формулировка карточки кризиса, кнопок) пока меняются в коде — попросите Глеба, если нужно поправить.</li>
+    <li><b>Структура полей</b> и работа сайта — инженерная часть. Через панель их сломать нельзя: вы правите только тексты-настройки.</li>
+  </ul>
+</div>
+
+<h2>7. Если что-то не так</h2>
+<div class="section">
+  <table>
+    <thead><tr><th style="width:44%">Симптом</th><th>Что проверить</th></tr></thead>
+    <tbody>
+      <tr><td>Изменения не видны на сайте</td><td>Скорее всего не нажата <b>«Опубликовать»</b> — рядом с полем висит «черновик не опубликован». Опубликуйте.</td></tr>
+      <tr><td>Опубликовала, но по-старому</td><td>Обновите страницу сайта (Ctrl+F5). Проверьте, что правили нужное поле, а не соседнее.</td></tr>
+      <tr><td>Случайно испортила текст</td><td><span class="btn">Сбросить</span> (если не публиковали) или <span class="btn">Версии</span> → <span class="btn">Восстановить</span> (если публиковали).</td></tr>
+      <tr><td>Не пускает в панель</td><td>Зайдите заново через <code>#/enter</code> → «Войти как редактор». Если пишет, что вход отключён — напишите Глебу.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout ok">
+    <span class="t">Общее правило спокойствия</span>
+    Любую правку можно откатить, а «Предпросмотр» позволяет всё проверить <b>до</b> публикации. Смело экспериментируйте.
+  </div>
+</div>
+
+<footer class="doc">
+  Книга перемен · Инструкция для контент-редактора · Составлено для проекта GlebBogatov/Kniga. Раздел сайта — «Контент» (служебный вход <code>#/enter</code>).
+</footer>
+
+</body>
+</html>
