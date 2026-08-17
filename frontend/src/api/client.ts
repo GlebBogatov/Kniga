@@ -18,6 +18,7 @@ import type {
   ReadingRequestBody,
   ReadingResponse,
   StreamHandlers,
+  SymbolOfDay,
   Tariff,
   User,
 } from "../types";
@@ -153,6 +154,7 @@ const realApi = {
   analyzeJournal: () => request<JournalAnalysis>("POST", "/journal/analyze", {}),
   chat: (readingId: number, message: string) =>
     request<ChatReply>("POST", `/reading/${readingId}/chat`, { message }),
+  getSymbolOfDay: () => request<SymbolOfDay>("GET", "/symbol-of-day"),
   getPresets: () => request<Preset[]>("GET", "/presets"),
 
   // Авторизация. Вход через VK/Яндекс пока заглушка (dev-login).

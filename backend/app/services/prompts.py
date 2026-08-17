@@ -186,6 +186,20 @@ def question_check_prompt(question: str, content: dict | None = None) -> str:
     )
 
 
+def symbol_of_day_prompt(symbol: dict, content: dict | None = None) -> tuple[str, list]:
+    """System + messages для короткого размышления-настроя «символ дня»."""
+    system = (
+        "Ты — знаток «Книги перемен». Дай короткое (2–3 предложения) "
+        "размышление-настрой на день по выпавшему символу. Пиши по-русски, на "
+        "«вы», без предсказаний конкретных событий.\n" + _c(content, "safety")
+    )
+    user = (
+        f"Символ дня: триграмма {symbol['name']} ({symbol['hanzi']}), образ — "
+        f"{symbol['image']}, действие — {symbol['action']}, стихия — {symbol['element']}."
+    )
+    return system, [{"role": "user", "content": user}]
+
+
 def journal_analysis_prompt(entries_json: str) -> str:
     return (
         "Ты — знаток «Книги перемен», анализирующий дневник гаданий человека.\n"

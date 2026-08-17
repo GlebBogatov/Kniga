@@ -22,6 +22,7 @@ import type {
   ReadingRequestBody,
   ReadingResponse,
   StreamHandlers,
+  SymbolOfDay,
   Tariff,
   User,
 } from "../types";
@@ -241,6 +242,22 @@ export const demoApi = {
         "Здесь будет ответ ИИ на ваш уточняющий вопрос. Сейчас это заглушка " +
         "демо-версии.",
       remaining: Math.max(0, 5 - demoChatUsed[readingId]),
+    };
+  },
+
+  getSymbolOfDay: async (): Promise<SymbolOfDay> => {
+    const user = readDemoUser();
+    if (!user) throw { status: 401, detail: "Требуется вход." } as ApiError;
+    if (user.subscription.plan !== "premium")
+      throw { status: 402, detail: "Символ дня доступен по подписке." } as ApiError;
+    const ids = ["qian", "dui", "li", "zhen", "xun", "kan", "gen", "kun"];
+    const symbol = trigramPreview(ids[new Date().getDate() % 8]);
+    return {
+      symbol,
+      reflection:
+        "✧ Здесь будет короткое размышление-настрой ИИ на день по этому символу " +
+        "(заглушка демо). ✧",
+      date: new Date().toISOString().slice(0, 10),
     };
   },
 

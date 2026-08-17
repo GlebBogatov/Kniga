@@ -83,8 +83,14 @@ export const copy = {
     placeholder: "Задайте уточняющий вопрос…",
     send: "Спросить",
     sending: "…",
-    remaining: (n: number) => `Осталось ${n} из 5 уточнений`,
+    remaining: (n: number) => `Осталось ${n} уточнений`,
     done: "Лимит уточнений исчерпан.",
+  },
+
+  symbolOfDay: {
+    title: "Символ дня",
+    teaser: "Символ дня — персональный настрой по подписке.",
+    open: "Открыть в подписке",
   },
 
   auth: {

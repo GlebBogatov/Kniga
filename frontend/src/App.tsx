@@ -8,6 +8,7 @@ import { Journal } from "./components/Journal";
 import { Presets } from "./components/Presets";
 import { QuestionInput } from "./components/QuestionInput";
 import { ReadingResult } from "./components/ReadingResult";
+import { SymbolOfDay } from "./components/SymbolOfDay";
 import { TrigramGrid } from "./components/TrigramGrid";
 import { copy } from "./copy";
 import { coinsPreview, hexagramPreview, trigramPreview } from "./data/symbol";
@@ -180,6 +181,8 @@ export default function App() {
 
       {tab === "reading" && (
         <>
+          <SymbolOfDay />
+
           <Presets
             onPick={(p) => {
               setQuestion(p.question_template);

@@ -207,6 +207,12 @@ export interface CmsPreview {
   question_check_prompt: string;
 }
 
+export interface SymbolOfDay {
+  symbol: DivinationSymbol;
+  reflection: string;
+  date: string;
+}
+
 export interface ReadingRequestBody {
   mode: Mode;
   question: string;

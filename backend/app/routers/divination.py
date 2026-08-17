@@ -4,7 +4,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..deps import get_current_user_optional
+from ..deps import get_current_user, get_current_user_optional
 from ..models import User
 from ..schemas import ChatRequest, ReadingRequest
 from ..services import payments, readings
@@ -60,6 +60,24 @@ def reading_stream(
         readings.stream_reading(db, req, llm, user_id=_uid(user)),
         media_type="text/event-stream",
     )
+
+
+@router.get("/symbol-of-day")
+def symbol_of_day(
+    db: Session = Depends(get_db),
+    llm: LLMService = Depends(get_llm_service),
+    user: User = Depends(get_current_user),
+) -> dict:
+    """Символ дня — премиум-функция (для бесплатного тарифа — 402)."""
+    try:
+        payments.ensure_premium(user)
+        return readings.symbol_of_day(db, llm)
+    except payments.PremiumRequired as exc:
+        raise HTTPException(status_code=402, detail=str(exc))
+    except LLMUnavailable:
+        raise HTTPException(status_code=503, detail="Символ дня временно недоступен.")
+    except LLMCallError:
+        raise HTTPException(status_code=502, detail="Не удалось получить символ дня.")
 
 
 @router.post("/reading/{reading_id}/chat")

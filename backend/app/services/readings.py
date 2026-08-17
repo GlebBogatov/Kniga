@@ -1,13 +1,14 @@
 """Бизнес-логика гадания и дневника: символ, промпт, вызов LLM, запись, анализ."""
 import json
+from datetime import date
 
 from sqlalchemy.orm import Session
 
 from .. import schemas
 from ..config import settings
 from ..data.question_presets import PRESET_BY_SLUG
-from ..models import ChatMessage, Reading
-from . import content, prompts
+from ..models import ChatMessage, Reading, User
+from . import content, payments, prompts
 from .divination import coins_symbol, hexagram_symbol, trigram_symbol
 from .llm import LLMCallError, LLMService, LLMUnavailable, get_llm_service
 
@@ -198,7 +199,15 @@ def stream_reading(
     yield _sse("done", done)
 
 
-CHAT_LIMIT = 5
+CHAT_LIMIT = 5        # премиум
+CHAT_FREE_LIMIT = 1   # бесплатный тариф
+
+
+def chat_limit_for(db: Session, reading: Reading) -> int:
+    if not settings.freemium_enabled:
+        return CHAT_LIMIT
+    owner = db.get(User, reading.user_id) if reading.user_id else None
+    return CHAT_LIMIT if payments.is_premium(owner) else CHAT_FREE_LIMIT
 
 
 def chat(db: Session, reading_id: int, message: str, llm: LLMService | None = None) -> dict:
@@ -207,9 +216,10 @@ def chat(db: Session, reading_id: int, message: str, llm: LLMService | None = No
     if reading is None:
         raise LookupError("Гадание не найдено.")
 
+    limit = chat_limit_for(db, reading)
     used = sum(1 for m in reading.messages if m.role == "user")
-    if used >= CHAT_LIMIT:
-        raise ValueError(f"Достигнут лимит уточнений ({CHAT_LIMIT}).")
+    if used >= limit:
+        raise ValueError(f"Достигнут лимит уточнений ({limit}).")
 
     system = prompts.chat_system_prompt(
         reading.symbol_label, reading.question, reading.interpretation, reading.advice
@@ -225,7 +235,22 @@ def chat(db: Session, reading_id: int, message: str, llm: LLMService | None = No
     db.add(ChatMessage(reading_id=reading_id, role="assistant", content=reply))
     db.commit()
 
-    return {"reply": reply, "remaining": CHAT_LIMIT - (used + 1)}
+    return {"reply": reply, "remaining": limit - (used + 1)}
+
+
+_DAY_TRIGRAMS = ["qian", "dui", "li", "zhen", "xun", "kan", "gen", "kun"]
+
+
+def symbol_of_day(db: Session, llm: LLMService | None = None) -> dict:
+    """Триграмма дня (детерминированно по дате) + короткое размышление ИИ."""
+    llm = llm or get_llm_service()
+    today = date.today()
+    symbol = trigram_symbol(_DAY_TRIGRAMS[today.toordinal() % 8])
+    system, messages = prompts.symbol_of_day_prompt(symbol, content.effective_map(db))
+    reflection = llm.call_text(
+        system, messages, model=settings.model_light, max_tokens=200
+    )
+    return {"symbol": symbol, "reflection": reflection, "date": today.isoformat()}
 
 
 def analyze_journal(

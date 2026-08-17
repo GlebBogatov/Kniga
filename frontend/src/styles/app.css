@@ -1188,6 +1188,60 @@
   color: #e88;
 }
 
+/* Символ дня */
+.sod-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background:
+    radial-gradient(circle, rgba(203, 171, 106, 0.1) 1px, transparent 1.5px) 0 0 / 14px 14px,
+    linear-gradient(135deg, rgba(74, 45, 132, 0.7), rgba(40, 24, 74, 0.75));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 1.2rem;
+}
+.sod-symbol {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.sod-hanzi {
+  font-family: var(--display);
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--gold-2);
+}
+.sod-title {
+  font-family: var(--heading);
+  color: var(--gold-2);
+  font-size: 0.95rem;
+}
+.sod-name {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  color: var(--cream);
+}
+.sod-reflection {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.1rem;
+  color: var(--cream);
+}
+.sod-teaser {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  background: rgba(203, 171, 106, 0.1);
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  padding: 0.8rem 1.1rem;
+  margin-bottom: 1.2rem;
+  color: var(--cream);
+}
+
 /* CMS */
 .cms-intro {
   margin-bottom: 1.2rem;
