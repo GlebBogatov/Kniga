@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from ..db import get_db
 from ..deps import require_roles
 from ..models import User
-from ..services import content
+from ..services import content, presets
 
 router = APIRouter(tags=["cms"])
 editor = require_roles("editor", "admin")
@@ -82,3 +82,40 @@ def preview(
     db: Session = Depends(get_db),
 ) -> dict:
     return content.preview(db, question)
+
+
+# --- Пресеты вопросов ---
+
+
+@router.get("/cms/presets")
+def list_presets(_: User = Depends(editor), db: Session = Depends(get_db)) -> list[dict]:
+    return presets.list_for_editor(db)
+
+
+@router.post("/cms/presets")
+def create_preset(
+    data: dict = Body(...), _: User = Depends(editor), db: Session = Depends(get_db)
+) -> dict:
+    return presets.create(db, data)
+
+
+@router.put("/cms/presets/{preset_id}")
+def update_preset(
+    preset_id: int,
+    data: dict = Body(...),
+    _: User = Depends(editor),
+    db: Session = Depends(get_db),
+) -> dict:
+    row = presets.update(db, preset_id, data)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Пресет не найден.")
+    return row
+
+
+@router.delete("/cms/presets/{preset_id}")
+def delete_preset(
+    preset_id: int, _: User = Depends(editor), db: Session = Depends(get_db)
+) -> dict:
+    if not presets.delete(db, preset_id):
+        raise HTTPException(status_code=404, detail="Пресет не найден.")
+    return {"deleted": preset_id}

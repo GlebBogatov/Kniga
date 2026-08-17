@@ -1,9 +1,11 @@
-"""Справочник символов и пресетов (данные уже в коде)."""
-from fastapi import APIRouter, HTTPException, Query
+"""Справочник символов и пресетов. Пресеты — из БД (CMS) с фолбэком на код."""
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
 
 from ..data.hexagrams import HEXAGRAMS
-from ..data.question_presets import PRESET_BY_SLUG, PRESETS
 from ..data.trigrams import TRIGRAMS
+from ..db import get_db
+from ..services import presets as presets_svc
 
 router = APIRouter(tags=["reference"])
 
@@ -39,13 +41,15 @@ def get_hexagram(number: int) -> dict:
 
 
 @router.get("/presets")
-def list_presets(topic: str | None = Query(None)) -> list[dict]:
-    return [p for p in PRESETS if topic is None or p["topic"] == topic]
+def list_presets(
+    topic: str | None = Query(None), db: Session = Depends(get_db)
+) -> list[dict]:
+    return presets_svc.effective(db, topic)
 
 
 @router.get("/presets/{slug}")
-def get_preset(slug: str) -> dict:
-    p = PRESET_BY_SLUG.get(slug)
+def get_preset(slug: str, db: Session = Depends(get_db)) -> dict:
+    p = presets_svc.by_slug(db, slug)
     if p is None:
         raise HTTPException(status_code=404, detail="Пресет не найден.")
     return p

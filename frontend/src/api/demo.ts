@@ -17,6 +17,7 @@ import type {
   JournalEntry,
   PaymentEntry,
   Preset,
+  PresetAdmin,
   ProfilePatch,
   QuestionCheck,
   ReadingRequestBody,
@@ -261,7 +262,46 @@ export const demoApi = {
     };
   },
 
-  getPresets: async (): Promise<Preset[]> => PRESETS,
+  getPresets: async (): Promise<Preset[]> =>
+    demoPresets()
+      .filter((p) => p.is_active)
+      .map(({ slug, topic, title, subtitle, question_template, prompt_focus }) => ({
+        slug,
+        topic,
+        title,
+        subtitle,
+        question_template,
+        prompt_focus,
+      })),
+
+  cmsPresets: async (): Promise<PresetAdmin[]> => demoPresets(),
+  cmsPresetCreate: async (data: Partial<PresetAdmin>): Promise<PresetAdmin> => {
+    const list = demoPresets();
+    const item: PresetAdmin = {
+      id: demoPresetId++,
+      slug: (data.title || "preset").toLowerCase().replace(/[^a-zа-я0-9]+/g, "-") + "-" + demoPresetId,
+      topic: data.topic ?? "other",
+      title: data.title ?? "Новый вопрос",
+      subtitle: data.subtitle ?? "",
+      question_template: data.question_template ?? "",
+      prompt_focus: data.prompt_focus ?? "",
+      sort_order: list.length,
+      is_active: data.is_active ?? true,
+    };
+    list.push(item);
+    return item;
+  },
+  cmsPresetUpdate: async (id: number, data: Partial<PresetAdmin>): Promise<PresetAdmin> => {
+    const item = demoPresets().find((p) => p.id === id)!;
+    Object.assign(item, data);
+    return item;
+  },
+  cmsPresetDelete: async (id: number): Promise<{ deleted: number }> => {
+    const list = demoPresets();
+    const i = list.findIndex((p) => p.id === id);
+    if (i >= 0) list.splice(i, 1);
+    return { deleted: id };
+  },
 
   // --- Авторизация (заглушка) ---
   devLogin: async (body: {
@@ -488,6 +528,22 @@ export const demoApi = {
 };
 
 const demoChatUsed: Record<number, number> = {};
+
+// Демо-состояние пресетов (сидируется из PRESETS при первом обращении).
+let demoPresetAdmin: PresetAdmin[] | null = null;
+let demoPresetId = 100;
+function demoPresets(): PresetAdmin[] {
+  if (demoPresetAdmin === null) {
+    demoPresetAdmin = PRESETS.map((p, i) => ({
+      ...p,
+      id: i + 1,
+      sort_order: i,
+      is_active: true,
+    }));
+    demoPresetId = PRESETS.length + 1;
+  }
+  return demoPresetAdmin;
+}
 
 const PRESETS: Preset[] = [
   { slug: "stoit-li-menyat-rabotu", topic: "career", title: "Стоит ли менять работу", subtitle: "Текущее место, новое, риски и сроки", question_template: "Стоит ли мне менять работу этой весной?", prompt_focus: "" },

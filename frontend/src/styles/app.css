@@ -1336,6 +1336,60 @@
   color: var(--cream);
   overflow-x: auto;
 }
+.cms-preset {
+  background: rgba(28, 16, 54, 0.5);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 0.9rem;
+}
+.cms-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+.cms-field {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.cms-field span {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--cream-dim);
+  margin-bottom: 0.2rem;
+}
+.cms-field input,
+.cms-field textarea {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: rgba(20, 10, 41, 0.55);
+  color: var(--cream);
+  font: inherit;
+  resize: vertical;
+}
+.cms-field input:focus,
+.cms-field textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.cms-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: end;
+}
+.cms-check span {
+  margin: 0;
+}
+.cms-check input {
+  width: auto;
+}
+.cms-add {
+  margin-top: 0.4rem;
+}
 
 /* Тарифы */
 .tariffs-sub {

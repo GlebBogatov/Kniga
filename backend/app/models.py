@@ -138,6 +138,23 @@ class ContentVersion(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
+class PresetItem(Base):
+    """Готовый вопрос-пресет (CMS Тани). Источник для /api/presets."""
+
+    __tablename__ = "preset_items"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    slug: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    topic: Mapped[str] = mapped_column(String(32), default="other")
+    title: Mapped[str] = mapped_column(String(120))
+    subtitle: Mapped[str] = mapped_column(String(200), default="")
+    question_template: Mapped[str] = mapped_column(Text, default="")
+    prompt_focus: Mapped[str] = mapped_column(Text, default="")
+    sort_order: Mapped[int] = mapped_column(default=0)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+
 class Payment(Base):
     __tablename__ = "payments"
 

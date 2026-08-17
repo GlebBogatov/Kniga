@@ -213,6 +213,18 @@ export interface SymbolOfDay {
   date: string;
 }
 
+export interface PresetAdmin {
+  id: number;
+  slug: string;
+  topic: string;
+  title: string;
+  subtitle: string;
+  question_template: string;
+  prompt_focus: string;
+  sort_order: number;
+  is_active: boolean;
+}
+
 export interface ReadingRequestBody {
   mode: Mode;
   question: string;

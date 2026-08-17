@@ -13,6 +13,7 @@ import type {
   JournalEntry,
   PaymentEntry,
   Preset,
+  PresetAdmin,
   ProfilePatch,
   QuestionCheck,
   ReadingRequestBody,
@@ -209,6 +210,13 @@ const realApi = {
     request<{ ok: boolean }>("POST", `/cms/content/${key}/restore/${versionId}`, {}),
   cmsPreview: (question: string) =>
     request<CmsPreview>("POST", "/cms/preview", { question }),
+  cmsPresets: () => request<PresetAdmin[]>("GET", "/cms/presets"),
+  cmsPresetCreate: (data: Partial<PresetAdmin>) =>
+    request<PresetAdmin>("POST", "/cms/presets", data),
+  cmsPresetUpdate: (id: number, data: Partial<PresetAdmin>) =>
+    request<PresetAdmin>("PUT", `/cms/presets/${id}`, data),
+  cmsPresetDelete: (id: number) =>
+    request<{ deleted: number }>("DELETE", `/cms/presets/${id}`),
 };
 
 export const DEMO = import.meta.env.VITE_DEMO === "1";

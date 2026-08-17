@@ -4,6 +4,7 @@ import { DEMO, api } from "../api/client";
 import { useAuth } from "../auth";
 import { copy } from "../copy";
 import type { CmsPreview, ContentItem, ContentVersion } from "../types";
+import { CmsPresets } from "./CmsPresets";
 
 export function CmsPage() {
   const { user, loading } = useAuth();
@@ -184,6 +185,8 @@ export function CmsPage() {
           </>
         )}
       </section>
+
+      <CmsPresets />
     </main>
   );
 }

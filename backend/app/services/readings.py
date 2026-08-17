@@ -6,9 +6,8 @@ from sqlalchemy.orm import Session
 
 from .. import schemas
 from ..config import settings
-from ..data.question_presets import PRESET_BY_SLUG
 from ..models import ChatMessage, Reading, User
-from . import content, payments, prompts
+from . import content, payments, presets, prompts
 from .divination import coins_symbol, hexagram_symbol, trigram_symbol
 from .llm import LLMCallError, LLMService, LLMUnavailable, get_llm_service
 
@@ -39,12 +38,8 @@ def symbol_element(symbol: dict) -> str:
     return f"{symbol['lower']['element']} / {symbol['upper']['element']}"
 
 
-def preset_focus_for(req: schemas.ReadingRequest) -> str | None:
-    if req.preset_slug:
-        preset = PRESET_BY_SLUG.get(req.preset_slug)
-        if preset:
-            return preset["prompt_focus"]
-    return None
+def preset_focus_for(db: Session, req: schemas.ReadingRequest) -> str | None:
+    return presets.focus_for(db, req.preset_slug)
 
 
 def create_reading(
@@ -59,7 +54,7 @@ def create_reading(
     symbol = build_symbol(req)
     is_coins = "changing_lines" in symbol
     if preset_focus is None:
-        preset_focus = preset_focus_for(req)
+        preset_focus = preset_focus_for(db, req)
 
     prompt = prompts.build_interpretation_prompt(
         symbol, req.question, style=req.style, preset_focus=preset_focus,
@@ -160,7 +155,7 @@ def stream_reading(
     parts: list[str] = []
     try:
         stream_prompt = prompts.prompt_interpretation_stream(
-            symbol, req.question, style=req.style, preset_focus=preset_focus_for(req),
+            symbol, req.question, style=req.style, preset_focus=preset_focus_for(db, req),
             content=content.effective_map(db),
         )
         for chunk in llm.stream_text(
