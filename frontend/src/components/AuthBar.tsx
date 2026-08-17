@@ -9,6 +9,8 @@ export function AuthBar() {
   const { user, loading, login, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [agree, setAgree] = useState(false);
+  const [marketing, setMarketing] = useState(false);
 
   async function doLogin(provider: Provider) {
     setBusy(true);
@@ -54,16 +56,41 @@ export function AuthBar() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>{copy.auth.loginTitle}</h3>
             <p className="muted modal-note">{copy.auth.loginNote}</p>
+
+            <label className="consent-row">
+              <input
+                type="checkbox"
+                checked={agree}
+                onChange={(e) => setAgree(e.target.checked)}
+              />
+              <span>
+                {copy.consent.agreePrefix}
+                <a href="#/legal/offer">{copy.consent.offer}</a>
+                {copy.consent.and}
+                <a href="#/legal/privacy">{copy.consent.privacy}</a>
+                {copy.consent.andData}
+                <a href="#/legal/consent">{copy.consent.dataConsent}</a>.
+              </span>
+            </label>
+            <label className="consent-row">
+              <input
+                type="checkbox"
+                checked={marketing}
+                onChange={(e) => setMarketing(e.target.checked)}
+              />
+              <span>{copy.consent.marketing}</span>
+            </label>
+
             <button
               className="social-btn vk"
-              disabled={busy}
+              disabled={busy || !agree}
               onClick={() => void doLogin("vk")}
             >
               {copy.auth.vk}
             </button>
             <button
               className="social-btn yandex"
-              disabled={busy}
+              disabled={busy || !agree}
               onClick={() => void doLogin("yandex")}
             >
               {copy.auth.yandex}

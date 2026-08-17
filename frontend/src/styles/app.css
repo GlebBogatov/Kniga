@@ -912,6 +912,49 @@
   background: rgba(203, 171, 106, 0.1);
 }
 
+/* Согласия в модалке входа */
+.consent-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  text-align: left;
+  font-size: 0.82rem;
+  color: var(--cream-dim);
+  margin-bottom: 0.7rem;
+}
+.consent-row input {
+  margin-top: 0.15rem;
+  flex: 0 0 auto;
+}
+.consent-row a {
+  color: var(--gold-2);
+}
+
+/* Cookie-баннер */
+.cookie-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 0.8rem;
+  transform: translateX(-50%);
+  z-index: 40;
+  width: min(720px, calc(100% - 1.6rem));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  background: rgba(28, 16, 54, 0.96);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.8rem 1.1rem;
+  box-shadow: 0 12px 34px rgba(10, 4, 24, 0.5);
+  font-size: 0.85rem;
+  color: var(--cream);
+}
+.cookie-banner a {
+  color: var(--gold-2);
+}
+
 /* Модалка входа */
 .modal-overlay {
   position: fixed;

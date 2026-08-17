@@ -6,6 +6,7 @@ import { AuthBar } from "./components/AuthBar";
 import { AdminPage } from "./components/AdminPage";
 import { CabinetPage } from "./components/CabinetPage";
 import { CmsPage } from "./components/CmsPage";
+import { CookieBanner } from "./components/CookieBanner";
 import { Footer } from "./components/Footer";
 import { LegalPage } from "./components/LegalPage";
 import { TariffsPage } from "./components/TariffsPage";
@@ -44,6 +45,7 @@ function Root() {
       </div>
       <CurrentPage path={path} />
       <Footer />
+      <CookieBanner />
     </AuthProvider>
   );
 }
