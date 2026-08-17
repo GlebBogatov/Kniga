@@ -7,6 +7,7 @@ import { AdminPage } from "./components/AdminPage";
 import { CabinetPage } from "./components/CabinetPage";
 import { CmsPage } from "./components/CmsPage";
 import { CookieBanner } from "./components/CookieBanner";
+import { DevLoginPage } from "./components/DevLoginPage";
 import { Footer } from "./components/Footer";
 import { LegalPage } from "./components/LegalPage";
 import { TariffsPage } from "./components/TariffsPage";
@@ -33,6 +34,7 @@ function CurrentPage({ path }: { path: string }) {
   if (path.startsWith("/tariffs")) return <TariffsPage />;
   if (path.startsWith("/admin")) return <AdminPage />;
   if (path.startsWith("/cms")) return <CmsPage />;
+  if (path.startsWith("/enter")) return <DevLoginPage />;
   return <App />;
 }
 

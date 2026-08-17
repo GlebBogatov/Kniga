@@ -7,6 +7,7 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   login: (provider: Provider) => Promise<void>;
+  loginWithRole: (role: "user" | "editor" | "admin") => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   updateProfile: (patch: ProfilePatch) => Promise<void>;
@@ -71,6 +72,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   }
 
+  // Служебный вход с ролью (работает, пока на бэкенде включён ALLOW_DEV_LOGIN).
+  async function loginWithRole(role: "user" | "editor" | "admin") {
+    const res = await api.devLogin({
+      provider: "dev",
+      provider_user_id: `owner-${role}`,
+      name: role === "admin" ? "Владелец" : role === "editor" ? "Таня" : "Гость",
+      email: `${role}@example.com`,
+      role,
+    });
+    setAuthToken(res.token);
+    setUser(res.user);
+  }
+
   async function logout() {
     try {
       await api.logout();
@@ -93,7 +107,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, logout, refresh, updateProfile, deleteAccount }}
+      value={{
+        user,
+        loading,
+        login,
+        loginWithRole,
+        logout,
+        refresh,
+        updateProfile,
+        deleteAccount,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -164,6 +164,7 @@ const realApi = {
     provider_user_id: string;
     email?: string;
     name?: string;
+    role?: string;
   }) => request<AuthResult>("POST", "/auth/dev-login", body),
   me: () => request<User>("GET", "/auth/me"),
   updateProfile: (patch: ProfilePatch) => request<User>("PATCH", "/auth/me", patch),

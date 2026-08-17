@@ -309,6 +309,7 @@ export const demoApi = {
     provider_user_id: string;
     email?: string;
     name?: string;
+    role?: string;
   }): Promise<AuthResult> => {
     await sleep(300);
     const user: User = {
@@ -317,7 +318,7 @@ export const demoApi = {
       email: body.email ?? `${body.provider}@example.com`,
       name: body.name ?? `Гость ${providerLabel(body.provider)}`,
       birth_date: null,
-      role: "user",
+      role: (body.role as User["role"]) ?? "user",
       subscription: {
         plan: "free",
         status: "active",
