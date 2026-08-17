@@ -31,9 +31,32 @@
   margin-bottom: 1.6rem;
 }
 /* всё содержимое шапки — над анимированным фоном */
-.app-header > *:not(.hero-aura) {
+.app-header > *:not(.hero-aura):not(.hero-bg) {
   position: relative;
   z-index: 1;
+}
+
+/* Фоновое видео за названием и кнопкой. Тёмный фон ролика убирается режимом
+   screen — остаются только золото-фиолетовые волны; центр спокойный, поэтому
+   заголовок и кнопка читаются. Маска мягко растворяет края. */
+.hero-bg {
+  position: absolute;
+  left: 50%;
+  top: -1.2rem;
+  transform: translateX(-50%);
+  width: min(940px, 100%);
+  height: 400px;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.92;
+  -webkit-mask: radial-gradient(ellipse 72% 60% at 50% 42%, #000 52%, transparent 100%);
+  mask: radial-gradient(ellipse 72% 60% at 50% 42%, #000 52%, transparent 100%);
+}
+/* по умолчанию показываем видео, CSS-ауру прячем */
+.hero-aura {
+  display: none;
 }
 
 /* Анимированный фон за названием «Книга перемен» (самодостаточный, без
@@ -245,6 +268,13 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  /* без видео — мягкая CSS-аура */
+  .hero-bg {
+    display: none;
+  }
+  .hero-aura {
+    display: block;
+  }
   .hero-cta {
     animation: cta-soft 2s ease-in-out infinite;
   }

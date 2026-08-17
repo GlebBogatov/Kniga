@@ -150,6 +150,17 @@ export default function App() {
       {DEMO && <div className="demo-banner">{copy.demoBanner}</div>}
       <header className="app-header">
         <div className="hero-aura" aria-hidden="true" />
+        <video
+          className="hero-bg"
+          aria-hidden="true"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+        >
+          <source src={`${import.meta.env.BASE_URL}hero.mp4`} type="video/mp4" />
+        </video>
         <h1>{copy.appTitle}</h1>
         <p className="muted">{copy.appSubtitle}</p>
         <div className="hero-orn" aria-hidden="true">
