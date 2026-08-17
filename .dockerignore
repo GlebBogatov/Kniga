@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+**/__pycache__
+**/.venv
+**/*.pyc
+backend/iching.db
+backend/.env
+.git
+docs
+*.md

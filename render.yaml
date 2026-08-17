@@ -1,0 +1,23 @@
+# Blueprint для Render.com: один Docker-сервис — бэкенд FastAPI + собранный
+# фронтенд по одному адресу. Подключается через New + → Blueprint → этот репозиторий.
+services:
+  - type: web
+    name: kniga-peremen
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # Ключ Anthropic — задаётся в дашборде Render (Secret). Без него ИИ
+      # недоступен: сайт работает, но вместо толкования — классическое значение.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Вход-заглушка VK/Яндекс (внешний OAuth пока не подключён).
+      - key: ALLOW_DEV_LOGIN
+        value: "true"
+      - key: FREEMIUM_ENABLED
+        value: "true"
+      # Фронт на том же адресе — CORS не нужен; ставим разрешительно на всякий.
+      - key: CORS_ORIGINS
+        value: "*"

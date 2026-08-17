@@ -186,6 +186,20 @@
   баннер закрывается. Frontend 13 passed. (Логирование согласия на бэкенде —
   задел на будущее.)
 
+## Деплой · Render.com (Docker, из git) · 2026-08-17
+
+- Один Docker-сервис: сборка фронтенда (Node) + бэкенд FastAPI, который
+  раздаёт и `/api/*`, и собранный фронт с одного адреса (без CORS).
+  `main.py` монтирует `./static` (SPA) на «/», если папка есть; иначе JSON.
+- `Dockerfile` (multi-stage), `.dockerignore`, `render.yaml` (Blueprint:
+  web+docker, healthCheck `/api/health`, autoDeploy; `ANTHROPIC_API_KEY`
+  как секрет, `ALLOW_DEV_LOGIN`/`FREEMIUM_ENABLED`/`CORS_ORIGINS`).
+- Render синхронизируется с GitHub-репозиторием и пересобирается при пуше.
+- Проверено локально: `npm run build` (с tsc) — ок; uvicorn отдаёт `/`
+  (SPA), `/api/health`, `/hero.mp4`, `/api/presets` с одного адреса.
+- Без `ANTHROPIC_API_KEY` сайт работает, но вместо ИИ-толкования —
+  классическое значение; вход/оплата/админка/CMS — на заглушках.
+
 ## Монетизация · Этап 8 — Пресеты в CMS · 2026-08-17
 
 - Пресеты вопросов переведены в БД (`PresetItem`) с фолбэком на дефолты из
