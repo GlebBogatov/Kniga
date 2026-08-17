@@ -90,19 +90,47 @@ class AnthropicProvider:
             yield from stream.text_stream
 
 
-class OpenRouterProvider:
-    """Запасной канал (OpenAI-совместимый endpoint OpenRouter)."""
+def _parse_json(text: str) -> dict:
+    """Разбор JSON из ответа модели: чистый JSON либо в ```-ограждении.
 
-    name = "openrouter"
-    BASE = "https://openrouter.ai/api/v1/chat/completions"
+    Timeweb/OpenRouter при json_schema возвращают чистый JSON, но некоторые
+    модели/режимы оборачивают в ```json — разбираем защитно.
+    """
+    text = text.strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    if text.startswith("```"):
+        parts = text.split("```")
+        text = parts[1] if len(parts) > 1 else text
+        if text.lstrip().startswith("json"):
+            text = text.lstrip()[4:]
+        text = text.strip()
+    i, j = text.find("{"), text.rfind("}")
+    if i != -1 and j > i:
+        return json.loads(text[i : j + 1])
+    return json.loads(text)  # бросит понятную ошибку
 
-    def __init__(self, *, api_key: str, proxy_url: str | None = None):
+
+class OpenAICompatibleProvider:
+    """OpenAI-совместимый провайдер (OpenRouter, Timeweb AI Gateway и т.п.).
+
+    base_url — корень API (например https://api.timeweb.ai/v1); к нему
+    добавляется /chat/completions. model_prefix подставляется, если в имени
+    модели нет '/', — так `claude-sonnet-5` -> `anthropic/claude-sonnet-5`.
+    """
+
+    def __init__(self, *, api_key: str, base_url: str, name: str = "openai-compat",
+                 model_prefix: str = "anthropic/", proxy_url: str | None = None):
+        self.name = name
         self._api_key = api_key
+        self._url = base_url.rstrip("/") + "/chat/completions"
+        self._prefix = model_prefix
         self._http = httpx.Client(proxy=proxy_url, timeout=60) if proxy_url else httpx.Client(timeout=60)
 
-    @staticmethod
-    def _model(model: str) -> str:
-        return model if "/" in model else f"anthropic/{model}"
+    def _model(self, model: str) -> str:
+        return model if "/" in model else f"{self._prefix}{model}"
 
     def _headers(self) -> dict:
         return {"Authorization": f"Bearer {self._api_key}", "Content-Type": "application/json"}
@@ -117,20 +145,46 @@ class OpenRouterProvider:
                 "json_schema": {"name": "result", "strict": True, "schema": schema},
             },
         }
-        r = self._http.post(self.BASE, headers=self._headers(), json=payload)
+        r = self._http.post(self._url, headers=self._headers(), json=payload)
         r.raise_for_status()
-        return json.loads(r.json()["choices"][0]["message"]["content"])
+        return _parse_json(r.json()["choices"][0]["message"]["content"])
 
     def call_text(self, system, messages, *, model, max_tokens) -> str:
         msgs = ([{"role": "system", "content": system}] if system else []) + list(messages)
         payload = {"model": self._model(model), "max_tokens": max_tokens, "messages": msgs}
-        r = self._http.post(self.BASE, headers=self._headers(), json=payload)
+        r = self._http.post(self._url, headers=self._headers(), json=payload)
         r.raise_for_status()
         return r.json()["choices"][0]["message"]["content"]
 
     def stream_text(self, prompt, *, model, max_tokens) -> Iterator[str]:
-        # Деградация: без потоковой передачи — весь текст одним куском.
-        yield self.call_text(None, [{"role": "user", "content": prompt}], model=model, max_tokens=max_tokens)
+        payload = {
+            "model": self._model(model),
+            "max_tokens": max_tokens,
+            "stream": True,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        with self._http.stream("POST", self._url, headers=self._headers(), json=payload) as r:
+            r.raise_for_status()
+            for line in r.iter_lines():
+                if not line or not line.startswith("data:"):
+                    continue
+                data = line[5:].strip()
+                if data == "[DONE]":
+                    break
+                try:
+                    delta = json.loads(data)["choices"][0]["delta"].get("content")
+                except (json.JSONDecodeError, KeyError, IndexError):
+                    continue
+                if delta:
+                    yield delta
+
+
+class OpenRouterProvider(OpenAICompatibleProvider):
+    """Запасной канал (OpenRouter, OpenAI-совместимый)."""
+
+    def __init__(self, *, api_key: str, proxy_url: str | None = None):
+        super().__init__(api_key=api_key, base_url="https://openrouter.ai/api/v1",
+                         name="openrouter", model_prefix="anthropic/", proxy_url=proxy_url)
 
 
 # --- Circuit breaker ---
@@ -234,6 +288,14 @@ def build_provider(settings) -> LLMProvider:
     if settings.llm_provider == "openrouter":
         return OpenRouterProvider(
             api_key=settings.openrouter_api_key or "",
+            proxy_url=settings.outbound_proxy_url,
+        )
+    if settings.llm_provider == "timeweb":
+        return OpenAICompatibleProvider(
+            api_key=settings.timeweb_api_key or "",
+            base_url=settings.timeweb_base_url,
+            name="timeweb",
+            model_prefix="anthropic/",
             proxy_url=settings.outbound_proxy_url,
         )
     return AnthropicProvider(

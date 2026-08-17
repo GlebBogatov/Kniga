@@ -9,7 +9,9 @@ from app.services.llm import (
     LLMCallError,
     LLMService,
     LLMUnavailable,
+    OpenAICompatibleProvider,
     OpenRouterProvider,
+    _parse_json,
     build_provider,
 )
 
@@ -111,6 +113,25 @@ def test_build_provider_switches_by_env():
     assert isinstance(build_provider(s_or), OpenRouterProvider)
     s_an = Settings(llm_provider="anthropic", anthropic_api_key="x")
     assert isinstance(build_provider(s_an), AnthropicProvider)
+
+
+def test_build_provider_timeweb():
+    p = build_provider(Settings(llm_provider="timeweb", timeweb_api_key="k"))
+    assert isinstance(p, OpenAICompatibleProvider)
+    assert p.name == "timeweb"
+    assert p._url == "https://api.timeweb.ai/v1/chat/completions"
+
+
+def test_openai_compat_model_prefix():
+    p = OpenAICompatibleProvider(api_key="k", base_url="https://x/v1", model_prefix="anthropic/")
+    assert p._model("claude-sonnet-5") == "anthropic/claude-sonnet-5"
+    assert p._model("openai/gpt-4o") == "openai/gpt-4o"
+
+
+def test_parse_json_handles_fences():
+    assert _parse_json('{"a": 1}') == {"a": 1}
+    assert _parse_json('```json\n{"a": 2}\n```') == {"a": 2}
+    assert _parse_json('пояснение\n```\n{"a": 3}\n```') == {"a": 3}
 
 
 def test_anthropic_provider_passes_base_url_and_proxy(monkeypatch):

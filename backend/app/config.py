@@ -13,8 +13,12 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_base_url: str = "https://api.anthropic.com"
     outbound_proxy_url: str | None = None
-    llm_provider: Literal["anthropic", "openrouter"] = "anthropic"
+    llm_provider: Literal["anthropic", "openrouter", "timeweb"] = "anthropic"
     openrouter_api_key: str | None = None
+
+    # Timeweb AI Gateway (OpenAI-совместимый, оплата в рублях, доступ из РФ).
+    timeweb_api_key: str = ""
+    timeweb_base_url: str = "https://api.timeweb.ai/v1"
 
     # Модели (конфигурируемо, чтобы менять без правки логики)
     model_interpretation: str = "claude-sonnet-5"

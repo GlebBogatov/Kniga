@@ -9,9 +9,18 @@ services:
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
-      # Ключ Anthropic — задаётся в дашборде Render (Secret). Без него ИИ
-      # недоступен: сайт работает, но вместо толкования — классическое значение.
-      - key: ANTHROPIC_API_KEY
+      # --- ИИ через Timeweb AI Gateway (OpenAI-совместимый, оплата в рублях) ---
+      - key: LLM_PROVIDER
+        value: "timeweb"
+      - key: TIMEWEB_BASE_URL
+        value: "https://api.timeweb.ai/v1"
+      - key: MODEL_INTERPRETATION
+        value: "anthropic/claude-sonnet-5"
+      - key: MODEL_LIGHT
+        value: "anthropic/claude-haiku-4-5"
+      # Ключ инференса Timeweb (sk-...) — задаётся в дашборде Render (Secret).
+      # Без него ИИ недоступен: сайт работает, но вместо толкования — классика.
+      - key: TIMEWEB_API_KEY
         sync: false
       # Вход-заглушка VK/Яндекс (внешний OAuth пока не подключён).
       - key: ALLOW_DEV_LOGIN

@@ -186,6 +186,21 @@
   баннер закрывается. Frontend 13 passed. (Логирование согласия на бэкенде —
   задел на будущее.)
 
+## ИИ · Подключение Timeweb AI Gateway · 2026-08-17
+
+- Реальный ИИ через **Timeweb AI Gateway** (OpenAI-совместимый, оплата в
+  рублях, доступ из РФ). Модели: `anthropic/claude-sonnet-5` (толкование),
+  `anthropic/claude-haiku-4-5` (проверка вопроса).
+- `llm.py`: `OpenRouterProvider` обобщён в `OpenAICompatibleProvider`
+  (настраиваемый base_url, префикс модели, **реальный SSE-стрим**, защитный
+  разбор JSON из ```-ограждений). Ветка `build_provider("timeweb")`.
+  Провайдер `timeweb` в `config.py` (+ `TIMEWEB_API_KEY`/`TIMEWEB_BASE_URL`).
+- `render.yaml`: `LLM_PROVIDER=timeweb`, `MODEL_*`, `TIMEWEB_BASE_URL` как
+  значения; `TIMEWEB_API_KEY` — секрет (задаётся в дашборде Render).
+- Проверено вживую ключом шлюза: `json_schema` (структурированное толкование
+  из 4 полей) и стриминг работают; **тесты backend 93 passed (+3)**.
+- Ключ инференса в git не кладётся (только `.env`/секрет Render).
+
 ## Деплой · Render.com (Docker, из git) · 2026-08-17
 
 - Один Docker-сервис: сборка фронтенда (Node) + бэкенд FastAPI, который
