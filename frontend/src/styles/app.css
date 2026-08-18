@@ -519,14 +519,15 @@
   color: var(--cream-dim);
 }
 .picker-choices {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.4rem;
   margin-top: 0.35rem;
 }
 .picker-chip {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   padding: 0.4rem 0.7rem;
   border: 1px solid var(--border-soft);
@@ -840,7 +841,8 @@
     font-size: 1.15rem;
     padding: 0.8rem 1.6rem;
   }
-  .trigram-grid {
+  .trigram-grid,
+  .picker-choices {
     grid-template-columns: repeat(2, 1fr);
   }
   .question-input textarea {
