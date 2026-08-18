@@ -8,12 +8,14 @@ export function QuestionInput({
   onCheck,
   checking,
   check,
+  showCheck = true,
 }: {
   value: string;
   onChange: (v: string) => void;
   onCheck: () => void;
   checking: boolean;
   check: QuestionCheck | null;
+  showCheck?: boolean;
 }) {
   return (
     <div className="question-input">
@@ -28,14 +30,16 @@ export function QuestionInput({
       />
       <div className="q-footer">
         <span className="muted">{copy.question.counter(value.length)}</span>
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={onCheck}
-          disabled={checking || value.trim().length < 3}
-        >
-          {checking ? copy.question.checking : copy.question.check}
-        </button>
+        {showCheck && (
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={onCheck}
+            disabled={checking || value.trim().length < 3}
+          >
+            {checking ? copy.question.checking : copy.question.check}
+          </button>
+        )}
       </div>
       {check &&
         (check.crisis ? (

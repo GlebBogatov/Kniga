@@ -26,6 +26,24 @@ def test_dev_login_and_me(client):
     assert me.json()["name"] == "Аня"
 
 
+def test_ui_mode_default_and_update(client):
+    data = _login(client, provider_user_id="ui1")
+    h = _auth(data)
+    # По умолчанию — простой интерфейс.
+    assert data["user"]["ui_mode"] == "simple"
+    assert client.get("/api/auth/me", headers=h).json()["ui_mode"] == "simple"
+
+    # Переключение на продвинутый сохраняется.
+    r = client.patch("/api/auth/me", json={"ui_mode": "advanced"}, headers=h)
+    assert r.status_code == 200, r.text
+    assert r.json()["ui_mode"] == "advanced"
+    assert client.get("/api/auth/me", headers=h).json()["ui_mode"] == "advanced"
+
+    # Невалидное значение отклоняется.
+    bad = client.patch("/api/auth/me", json={"ui_mode": "expert"}, headers=h)
+    assert bad.status_code == 422
+
+
 def test_login_provider_is_stub(client):
     r = client.get("/api/auth/login/vk")
     assert r.status_code == 200

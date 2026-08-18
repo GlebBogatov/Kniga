@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "../api/client";
 import { useAuth } from "../auth";
 import { copy } from "../copy";
-import type { Provider, Subscription } from "../types";
+import type { Provider, Subscription, UiMode } from "../types";
 import { Journal } from "./Journal";
 
 function statusLabel(s: Subscription["status"]): string {
@@ -21,6 +21,7 @@ export function CabinetPage() {
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [uiSaving, setUiSaving] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -48,6 +49,16 @@ export function CabinetPage() {
     if (!window.confirm(copy.cabinet.deleteConfirm)) return;
     await deleteAccount();
     window.location.hash = "#/";
+  }
+
+  async function setUiMode(mode: UiMode) {
+    if (uiSaving || user?.ui_mode === mode) return;
+    setUiSaving(true);
+    try {
+      await updateProfile({ ui_mode: mode });
+    } finally {
+      setUiSaving(false);
+    }
   }
 
   if (loading) {
@@ -112,6 +123,33 @@ export function CabinetPage() {
           </button>
           {saved && <span className="muted">{copy.cabinet.saved}</span>}
         </div>
+      </section>
+
+      {/* Интерфейс */}
+      <section className="cab-card">
+        <h2>{copy.cabinet.uiTitle}</h2>
+        <p className="muted">{copy.cabinet.uiHint}</p>
+        <div className="ui-switch">
+          <button
+            className={user.ui_mode === "simple" ? "active" : ""}
+            disabled={uiSaving}
+            onClick={() => void setUiMode("simple")}
+          >
+            {copy.cabinet.uiSimple}
+          </button>
+          <button
+            className={user.ui_mode === "advanced" ? "active" : ""}
+            disabled={uiSaving}
+            onClick={() => void setUiMode("advanced")}
+          >
+            {copy.cabinet.uiAdvanced}
+          </button>
+        </div>
+        <p className="muted ui-desc">
+          {user.ui_mode === "simple"
+            ? copy.cabinet.uiSimpleDesc
+            : copy.cabinet.uiAdvancedDesc}
+        </p>
       </section>
 
       {/* Подписка */}

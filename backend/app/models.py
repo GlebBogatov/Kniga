@@ -75,6 +75,7 @@ class User(Base):
     birth_date: Mapped[date | None] = mapped_column(nullable=True)
     role: Mapped[str] = mapped_column(String(16), default="user")   # user | admin | editor
     is_blocked: Mapped[bool] = mapped_column(Boolean, default=False)
+    ui_mode: Mapped[str] = mapped_column(String(16), default="simple")  # simple | advanced
 
     subscription: Mapped["Subscription | None"] = relationship(
         back_populates="user", uselist=False, cascade="all, delete-orphan"

@@ -55,6 +55,7 @@ class DevLoginRequest(BaseModel):
 class ProfileUpdateRequest(BaseModel):
     name: Optional[str] = Field(default=None, max_length=120)
     email: Optional[str] = Field(default=None, max_length=255)
+    ui_mode: Optional[Literal["simple", "advanced"]] = None
 
 
 class QuestionCheckRequest(BaseModel):

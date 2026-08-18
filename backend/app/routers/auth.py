@@ -61,6 +61,8 @@ def update_me(
         user.name = req.name
     if req.email is not None:
         user.email = req.email
+    if req.ui_mode is not None:
+        user.ui_mode = req.ui_mode
     db.commit()
     db.refresh(user)
     return auth.user_public(user)

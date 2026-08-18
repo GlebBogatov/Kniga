@@ -1104,6 +1104,41 @@
   margin-top: 0.6rem;
   flex-wrap: wrap;
 }
+/* Переключатель уровня интерфейса (простой/продвинутый) */
+.ui-switch {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.4rem 0 0.7rem;
+}
+.ui-switch button {
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--border-soft);
+  background: rgba(44, 26, 78, 0.4);
+  color: var(--cream-dim);
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+.ui-switch button:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--cream);
+}
+.ui-switch button.active {
+  border-color: var(--gold);
+  color: var(--cream);
+  box-shadow: 0 0 18px rgba(203, 171, 106, 0.2);
+}
+.ui-switch button:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+.ui-desc {
+  font-size: 0.85rem;
+  margin: 0;
+}
 .plan-badge {
   display: inline-block;
   padding: 0.2rem 0.7rem;

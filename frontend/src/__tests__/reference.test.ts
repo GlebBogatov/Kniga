@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { hexagramNumber } from "../data/reference.generated";
 import { hexagramPreview, trigramPreview } from "../data/symbol";
 import { segmentsForLine } from "../lib/lines";
+import { effectiveUiMode } from "../lib/uiMode";
 import { canSubmit } from "../lib/validation";
 
 describe("hexagramNumber (вычисление гексаграммы из пары id)", () => {
@@ -23,6 +24,13 @@ describe("canSubmit (блокировка кнопки)", () => {
   it("нет символа -> false", () => expect(canSubmit("вопрос?", false, false)).toBe(false));
   it("во время загрузки -> false", () => expect(canSubmit("вопрос?", true, true)).toBe(false));
   it("всё готово -> true", () => expect(canSubmit("вопрос?", true, false)).toBe(true));
+});
+
+describe("effectiveUiMode (уровень интерфейса)", () => {
+  it("аккаунт важнее кэша", () => expect(effectiveUiMode("advanced", "simple")).toBe("advanced"));
+  it("нет аккаунта -> берём кэш", () => expect(effectiveUiMode(null, "advanced")).toBe("advanced"));
+  it("нет ни аккаунта, ни кэша -> простой", () => expect(effectiveUiMode(null, null)).toBe("simple"));
+  it("undefined аккаунт (гость) -> простой", () => expect(effectiveUiMode(undefined, null)).toBe("simple"));
 });
 
 describe("preview-символы", () => {

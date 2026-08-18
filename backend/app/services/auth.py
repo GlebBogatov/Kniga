@@ -137,5 +137,6 @@ def user_public(user: User) -> dict:
         "name": user.name,
         "birth_date": user.birth_date.isoformat() if user.birth_date else None,
         "role": user.role,
+        "ui_mode": user.ui_mode,
         "subscription": subscription_public(user.subscription),
     }

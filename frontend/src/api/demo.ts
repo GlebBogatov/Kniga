@@ -319,6 +319,7 @@ export const demoApi = {
       name: body.name ?? `Гость ${providerLabel(body.provider)}`,
       birth_date: null,
       role: (body.role as User["role"]) ?? "user",
+      ui_mode: "simple",
       subscription: {
         plan: "free",
         status: "active",
@@ -341,6 +342,7 @@ export const demoApi = {
     if (!user) throw { status: 401, detail: "Требуется вход." } as ApiError;
     if (patch.name !== undefined) user.name = patch.name;
     if (patch.email !== undefined) user.email = patch.email;
+    if (patch.ui_mode !== undefined) user.ui_mode = patch.ui_mode;
     writeDemoUser(user);
     return user;
   },

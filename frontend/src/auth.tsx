@@ -1,7 +1,29 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 import { api, getAuthToken, setAuthToken } from "./api/client";
-import type { ProfilePatch, Provider, User } from "./types";
+import type { ProfilePatch, Provider, UiMode, User } from "./types";
+
+// Кэш выбранного интерфейса: чтобы App применил режим мгновенно (до резолва
+// авторизации) и чтобы у анонимных гостей был стабильный дефолт — «простой».
+const UI_MODE_KEY = "kn_ui_mode";
+
+export function cachedUiMode(): UiMode | null {
+  try {
+    const v = localStorage.getItem(UI_MODE_KEY);
+    return v === "simple" || v === "advanced" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function setUiModeCache(mode: UiMode | null): void {
+  try {
+    if (mode) localStorage.setItem(UI_MODE_KEY, mode);
+    else localStorage.removeItem(UI_MODE_KEY);
+  } catch {
+    /* localStorage недоступен — игнорируем */
+  }
+}
 
 interface AuthState {
   user: User | null;
@@ -40,17 +62,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Единая точка установки пользователя: синхронно кэширует выбранный интерфейс.
+  function syncUser(u: User | null): void {
+    setUser(u);
+    setUiModeCache(u ? u.ui_mode : null);
+  }
+
   async function refresh() {
     if (!getAuthToken()) {
-      setUser(null);
+      syncUser(null);
       setLoading(false);
       return;
     }
     try {
-      setUser(await api.me());
+      syncUser(await api.me());
     } catch {
       setAuthToken(null);
-      setUser(null);
+      syncUser(null);
     } finally {
       setLoading(false);
     }
@@ -69,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: `${provider}@example.com`,
     });
     setAuthToken(res.token);
-    setUser(res.user);
+    syncUser(res.user);
   }
 
   // Служебный вход с ролью (работает, пока на бэкенде включён ALLOW_DEV_LOGIN).
@@ -82,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role,
     });
     setAuthToken(res.token);
-    setUser(res.user);
+    syncUser(res.user);
   }
 
   async function logout() {
@@ -92,17 +120,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       /* всё равно выходим локально */
     }
     setAuthToken(null);
-    setUser(null);
+    syncUser(null);
   }
 
   async function updateProfile(patch: ProfilePatch) {
-    setUser(await api.updateProfile(patch));
+    syncUser(await api.updateProfile(patch));
   }
 
   async function deleteAccount() {
     await api.deleteAccount();
     setAuthToken(null);
-    setUser(null);
+    syncUser(null);
   }
 
   return (

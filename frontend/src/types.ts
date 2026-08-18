@@ -1,5 +1,6 @@
 export type Mode = "8" | "64" | "coins";
 export type Style = "classic" | "modern" | "short";
+export type UiMode = "simple" | "advanced";
 
 export interface TrigramSymbol {
   kind: "trigram";
@@ -117,6 +118,7 @@ export interface User {
   name: string | null;
   birth_date: string | null;
   role: "user" | "admin" | "editor";
+  ui_mode: UiMode;
   subscription: Subscription;
 }
 
@@ -128,6 +130,7 @@ export interface AuthResult {
 export interface ProfilePatch {
   name?: string;
   email?: string;
+  ui_mode?: UiMode;
 }
 
 export interface Tariff {

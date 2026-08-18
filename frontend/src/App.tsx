@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { DEMO, api } from "./api/client";
+import { cachedUiMode, useAuth } from "./auth";
 import { CoinsInput } from "./components/CoinsInput";
 import { FollowUpChat } from "./components/FollowUpChat";
 import { HexagramPicker } from "./components/HexagramPicker";
@@ -13,13 +14,14 @@ import { TrigramGrid } from "./components/TrigramGrid";
 import { copy } from "./copy";
 import { coinsPreview, hexagramPreview, trigramPreview } from "./data/symbol";
 import { canSubmit } from "./lib/validation";
+import { effectiveUiMode } from "./lib/uiMode";
 import type { ApiError, DivinationSymbol, Mode, QuestionCheck, ReadingResponse } from "./types";
 
 const EMPTY_TOSSES: (number | null)[] = [null, null, null, null, null, null];
 
 export default function App() {
   const [tab, setTab] = useState<"reading" | "journal">("reading");
-  const [mode, setMode] = useState<Mode>("8");
+  const [modeState, setModeState] = useState<Mode>("8");
   const [question, setQuestion] = useState("");
   const [presetSlug, setPresetSlug] = useState<string | null>(null);
 
@@ -47,6 +49,12 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
+  // Уровень интерфейса: из аккаунта, с мгновенным применением из кэша до резолва
+  // авторизации; у анонимных гостей — «простой». В простом доступна только «64».
+  const { user } = useAuth();
+  const simple = effectiveUiMode(user?.ui_mode, cachedUiMode()) === "simple";
+  const mode: Mode = simple ? "64" : modeState;
+
   const tossesComplete = tosses.every((t) => t !== null);
   const hasSymbol =
     mode === "8" ? !!trigramId : mode === "64" ? !!(lowerId && upperId) : tossesComplete;
@@ -58,7 +66,7 @@ export default function App() {
   }
 
   function switchMode(m: Mode) {
-    setMode(m);
+    setModeState(m);
     resetResult();
   }
 
@@ -213,17 +221,19 @@ export default function App() {
             }}
           />
 
-          <div className="mode-switch">
-            {(["8", "64", "coins"] as Mode[]).map((m) => (
-              <button
-                key={m}
-                className={mode === m ? "active" : ""}
-                onClick={() => switchMode(m)}
-              >
-                {copy.modes[m]}
-              </button>
-            ))}
-          </div>
+          {!simple && (
+            <div className="mode-switch">
+              {(["8", "64", "coins"] as Mode[]).map((m) => (
+                <button
+                  key={m}
+                  className={mode === m ? "active" : ""}
+                  onClick={() => switchMode(m)}
+                >
+                  {copy.modes[m]}
+                </button>
+              ))}
+            </div>
+          )}
 
           <QuestionInput
             value={question}
@@ -234,6 +244,7 @@ export default function App() {
             onCheck={runCheck}
             checking={checking}
             check={check}
+            showCheck={!simple}
           />
 
           <details className="how-to">
