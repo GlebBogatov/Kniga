@@ -39,8 +39,10 @@ class Settings(BaseSettings):
     yookassa_shop_id: str = ""
     yookassa_secret_key: str = ""
 
-    # Прочее
+    # БД. Локально/по умолчанию — SQLite. В проде задаётся DATABASE_URL
+    # (Render/Timeweb/Neon), она имеет приоритет над db_url.
     db_url: str = "sqlite:///./iching.db"
+    database_url: str | None = None
     cors_origins: str = "http://localhost:5173"
     rate_limit_enabled: bool = True
     max_body_bytes: int = 8192
@@ -48,6 +50,11 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def effective_db_url(self) -> str:
+        """Действующая строка подключения: DATABASE_URL (прод) либо db_url."""
+        return self.database_url or self.db_url
 
 
 settings = Settings()

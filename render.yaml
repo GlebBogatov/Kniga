@@ -22,6 +22,13 @@ services:
       # Без него ИИ недоступен: сайт работает, но вместо толкования — классика.
       - key: TIMEWEB_API_KEY
         sync: false
+      # --- Постоянная БД (PostgreSQL) ---
+      # Строка подключения задаётся в дашборде Render (Secret). Подходит любой
+      # управляемый Postgres: Timeweb Cloud / Render / Neon. Формат:
+      #   postgresql://USER:PASSWORD@HOST:PORT/DBNAME?sslmode=require
+      # Приложение само приведёт схему к psycopg. Без неё — эфемерный SQLite.
+      - key: DATABASE_URL
+        sync: false
       # Вход-заглушка VK/Яндекс (внешний OAuth пока не подключён).
       - key: ALLOW_DEV_LOGIN
         value: "true"
