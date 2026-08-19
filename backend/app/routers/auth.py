@@ -3,6 +3,7 @@
 Вход через VK/Яндекс ID пока ЗАГЛУШКА (dev-login) — см. services/auth.py.
 """
 from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from ..config import settings
@@ -10,9 +11,14 @@ from ..db import get_db
 from ..deps import get_current_user
 from ..models import User
 from ..schemas import DevLoginRequest, ProfileUpdateRequest
-from ..services import auth
+from ..services import auth, oauth
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+# Куда вернуть браузер после OAuth. Токен сессии передаём во фрагменте URL
+# (не попадает в логи сервера); SPA его забирает и сохраняет.
+_OAUTH_OK = "/#/auth-callback/{token}"
+_OAUTH_ERR = "/#/auth-error"
 
 
 @router.get("/login/{provider}")
@@ -44,6 +50,44 @@ def dev_login(req: DevLoginRequest, db: Session = Depends(get_db)) -> dict:
         raise HTTPException(status_code=403, detail="Аккаунт заблокирован.")
     token = auth.start_session(db, user)
     return {"token": token, "user": auth.user_public(user)}
+
+
+# --- Реальный вход через Яндекс OAuth ---
+
+
+@router.get("/oauth/yandex/start")
+def yandex_start() -> RedirectResponse:
+    """Старт входа: редирект на Яндекс с одноразовым state (CSRF)."""
+    if not settings.yandex_enabled:
+        return RedirectResponse(_OAUTH_ERR, status_code=307)
+    state = oauth.create_state()
+    return RedirectResponse(oauth.authorize_url(state), status_code=307)
+
+
+@router.get("/oauth/yandex/callback")
+def yandex_callback(
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+    db: Session = Depends(get_db),
+) -> RedirectResponse:
+    """Callback Яндекса: проверка state → обмен кода → профиль → сессия."""
+    if error or not code or not state or not oauth.verify_state(state):
+        return RedirectResponse(_OAUTH_ERR, status_code=307)
+    try:
+        access_token = oauth.exchange_code(code)
+        profile = oauth.profile_to_user(oauth.fetch_userinfo(access_token))
+    except Exception:
+        return RedirectResponse(_OAUTH_ERR, status_code=307)
+
+    user = auth.get_or_create_user(
+        db, "yandex", profile["provider_user_id"],
+        email=profile["email"], name=profile["name"],
+    )
+    if user.is_blocked:
+        return RedirectResponse(_OAUTH_ERR, status_code=307)
+    session_token = auth.start_session(db, user)
+    return RedirectResponse(_OAUTH_OK.format(token=session_token), status_code=307)
 
 
 @router.get("/me")

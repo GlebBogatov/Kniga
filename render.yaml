@@ -29,7 +29,16 @@ services:
       # Приложение само приведёт схему к psycopg. Без неё — эфемерный SQLite.
       - key: DATABASE_URL
         sync: false
-      # Вход-заглушка VK/Яндекс (внешний OAuth пока не подключён).
+      # --- Яндекс OAuth (реальный вход) ---
+      # PUBLIC_BASE_URL — публичный адрес сервиса (для redirect_uri и возврата в SPA).
+      - key: PUBLIC_BASE_URL
+        value: "https://kniga-peremen.onrender.com"
+      # Client ID / Secret из https://oauth.yandex.ru — задаются в дашборде (Secret).
+      - key: YANDEX_CLIENT_ID
+        sync: false
+      - key: YANDEX_CLIENT_SECRET
+        sync: false
+      # Служебный вход по ролям (#/enter) + dev-login (админ). Обычные — через Яндекс.
       - key: ALLOW_DEV_LOGIN
         value: "true"
       - key: FREEMIUM_ENABLED

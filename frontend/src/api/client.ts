@@ -222,3 +222,8 @@ const realApi = {
 
 export const DEMO = import.meta.env.VITE_DEMO === "1";
 export const api = DEMO ? demoApi : realApi;
+
+/** Старт реального входа через Яндекс — браузерный редирект на бэкенд. */
+export function startYandexLogin(): void {
+  window.location.href = BASE + "/auth/oauth/yandex/start";
+}

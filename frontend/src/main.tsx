@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { AuthProvider } from "./auth";
 import { AuthBar } from "./components/AuthBar";
+import { AuthCallback, AuthError } from "./components/AuthCallback";
 import { AdminPage } from "./components/AdminPage";
 import { CabinetPage } from "./components/CabinetPage";
 import { CmsPage } from "./components/CmsPage";
@@ -30,6 +31,9 @@ function useHashPath() {
 function CurrentPage({ path }: { path: string }) {
   const legalMatch = path.match(/^\/legal\/([\w-]+)/);
   if (legalMatch) return <LegalPage slug={legalMatch[1]} />;
+  const authCb = path.match(/^\/auth-callback\/(.+)$/);
+  if (authCb) return <AuthCallback token={authCb[1]} />;
+  if (path.startsWith("/auth-error")) return <AuthError />;
   if (path.startsWith("/cabinet")) return <CabinetPage />;
   if (path.startsWith("/tariffs")) return <TariffsPage />;
   if (path.startsWith("/admin")) return <AdminPage />;

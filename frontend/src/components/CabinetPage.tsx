@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { api } from "../api/client";
+import { DEMO, api, startYandexLogin } from "../api/client";
 import { useAuth } from "../auth";
 import { copy } from "../copy";
 import type { Provider, Subscription, UiMode } from "../types";
@@ -83,7 +83,7 @@ export function CabinetPage() {
           </button>
           <button
             className="social-btn yandex"
-            onClick={() => void login("yandex" as Provider)}
+            onClick={() => (DEMO ? void login("yandex" as Provider) : startYandexLogin())}
           >
             {copy.auth.yandex}
           </button>

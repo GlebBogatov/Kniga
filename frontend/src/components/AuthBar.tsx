@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { DEMO } from "../api/client";
+import { DEMO, startYandexLogin } from "../api/client";
 import { useAuth } from "../auth";
 import { copy } from "../copy";
 import type { Provider } from "../types";
@@ -91,7 +91,7 @@ export function AuthBar() {
             <button
               className="social-btn yandex"
               disabled={busy || !agree}
-              onClick={() => void doLogin("yandex")}
+              onClick={() => (DEMO ? void doLogin("yandex") : startYandexLogin())}
             >
               {copy.auth.yandex}
             </button>

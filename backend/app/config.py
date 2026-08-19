@@ -25,10 +25,28 @@ class Settings(BaseSettings):
     model_light: str = "claude-haiku-4-5"
 
     # Аккаунты / сессии
-    # Заглушка входа вместо реального VK/Яндекс OAuth (внешние сервисы —
-    # пока заглушки; реальные ключи подключаются позже).
+    # Заглушка входа (dev-login) — для служебного входа по ролям (#/enter) и
+    # пока не подключён реальный вход. Реальный вход через Яндекс — ниже.
     allow_dev_login: bool = True
     session_ttl_days: int = 30
+
+    # Яндекс OAuth (реальный вход). Пусто → вход через Яндекс выключен.
+    # Приложение регистрируется на https://oauth.yandex.ru/client/new,
+    # redirect_uri = <public_base_url>/api/auth/oauth/yandex/callback.
+    public_base_url: str = ""
+    yandex_client_id: str = ""
+    yandex_client_secret: str = ""
+    yandex_redirect_uri: str = ""  # если пусто — строится из public_base_url
+
+    @property
+    def yandex_enabled(self) -> bool:
+        return bool(self.yandex_client_id and self.yandex_client_secret)
+
+    @property
+    def yandex_redirect(self) -> str:
+        if self.yandex_redirect_uri:
+            return self.yandex_redirect_uri
+        return self.public_base_url.rstrip("/") + "/api/auth/oauth/yandex/callback"
 
     # Тарифы / лимиты (freemium). freemium_enabled выключается в тестах.
     freemium_enabled: bool = True
