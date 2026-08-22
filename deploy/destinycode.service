@@ -1,0 +1,17 @@
+[Unit]
+Description=Destiny Code (Книга перемен) FastAPI
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/getdestinycode/backend
+Environment=PYTHONUNBUFFERED=1
+# .env читается pydantic-settings из WorkingDirectory (backend/.env)
+ExecStart=/var/www/getdestinycode/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8100
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
